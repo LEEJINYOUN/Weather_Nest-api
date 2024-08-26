@@ -2,6 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
+import { CreateUserInput } from './dto/create-user.input';
 
 @Controller()
 export class UsersController {
@@ -9,13 +10,13 @@ export class UsersController {
 
   // 회원가입
   @Post('register')
-  async register(
-    @Body('email') email: string,
-    @Body('name') name: string,
-    @Body('password') password: string,
-  ): Promise<User> {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    return this.usersService.register({ email, name, hashedPassword });
+  async register(@Body() createUserInput: CreateUserInput): Promise<User> {
+    const hashedPassword = await bcrypt.hash(createUserInput.password, 10);
+    return this.usersService.register({
+      email: createUserInput.email,
+      name: createUserInput.name,
+      password: hashedPassword,
+    });
   }
 
   // 로그인

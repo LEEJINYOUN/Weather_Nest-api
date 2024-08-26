@@ -29,7 +29,7 @@ export class UsersService {
   async register({
     email,
     name,
-    hashedPassword,
+    password,
   }: IUsersServiceCRegister): Promise<User> {
     // 등록된 이메일 체크
     const user = await this.findOneByEmail({ email });
@@ -41,7 +41,7 @@ export class UsersService {
     return this.usersRepository.save({
       email,
       name,
-      password: hashedPassword,
+      password,
     });
   }
 
