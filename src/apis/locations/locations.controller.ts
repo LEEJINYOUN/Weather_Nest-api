@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { CreateLocationInput } from './dto/create-location.input';
 import { Location } from './entities/location.entity';
@@ -7,32 +15,41 @@ import { Location } from './entities/location.entity';
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}
 
-  // 모든 지역 조회
+  // 모든 지역명 조회
   @Get()
-  findAll(): Promise<Location[]> {
-    return this.locationsService.findAll();
+  getLocations(): Promise<Location[]> {
+    return this.locationsService.getLocations();
   }
 
-  // 지역 등록
+  // 지역명 등록
   @Post()
-  async store(
+  async createLocation(
     @Body() createLocationInput: CreateLocationInput,
   ): Promise<Location> {
-    return this.locationsService.store({
+    return await this.locationsService.createLocation({
       location_kr: createLocationInput.location_kr,
       location_en: createLocationInput.location_en,
     });
   }
 
   // 특정 지역명 조회
-  @Get('/:id')
+  @Get(':id')
   getLocationById(@Param('id') id: number): Promise<Location> {
     return this.locationsService.getLocationById(id);
   }
 
+  // 특정 지역명 수정
+  @Put(':id')
+  async updateLocation(
+    @Param('id') id: number,
+    @Body() createLocationInput: CreateLocationInput,
+  ) {
+    return await this.locationsService.updateLocation(id, createLocationInput);
+  }
+
   // 특정 지역명 삭제
-  @Delete('/:id')
+  @Delete(':id')
   deleteLocation(@Param('id') id: number): Promise<boolean> {
-    return this.locationsService.remove(id);
+    return this.locationsService.deleteLocation(id);
   }
 }
