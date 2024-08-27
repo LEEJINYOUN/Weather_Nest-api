@@ -43,7 +43,7 @@ export class LocationsController {
   async updateLocation(
     @Param('id') id: number,
     @Body() createLocationInput: CreateLocationInput,
-  ) {
+  ): Promise<Location> {
     return await this.locationsService.updateLocation(id, createLocationInput);
   }
 

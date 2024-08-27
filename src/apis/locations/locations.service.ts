@@ -70,7 +70,10 @@ export class LocationsService {
   }
 
   // 특정 지역명 수정
-  async updateLocation(id: number, createLocationInput: CreateLocationInput) {
+  async updateLocation(
+    id: number,
+    createLocationInput: CreateLocationInput,
+  ): Promise<Location> {
     const location = await this.findLocationId(id);
 
     Object.assign(location, createLocationInput);
@@ -79,7 +82,7 @@ export class LocationsService {
   }
 
   // 특정 지역명 삭제
-  async deleteLocation(id: number) {
+  async deleteLocation(id: number): Promise<boolean> {
     const result = await this.locationsRepository.delete({ id });
     return result.affected ? true : false;
   }
