@@ -7,9 +7,9 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  IUsersServiceCRegister,
   IUsersServiceFindOneByEmail,
   IUsersServiceLogin,
+  IUsersServiceRegister,
 } from './interfaces/users-service.interface';
 import * as bcrypt from 'bcrypt';
 
@@ -30,7 +30,7 @@ export class UsersService {
     email,
     name,
     password,
-  }: IUsersServiceCRegister): Promise<User> {
+  }: IUsersServiceRegister): Promise<User> {
     // 등록된 이메일 체크
     const user = await this.findOneByEmail({ email });
 

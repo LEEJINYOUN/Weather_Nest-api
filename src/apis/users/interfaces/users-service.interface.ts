@@ -1,4 +1,4 @@
-export interface IUsersServiceCRegister {
+export interface IUsersServiceRegister {
   email: string;
   name: string;
   password?: string;

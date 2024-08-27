@@ -6,19 +6,16 @@ import {
 } from 'typeorm';
 
 // 테이블 설정
-@Entity('users')
-export class User {
+@Entity('locations')
+export class Location {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()
-  email: string;
+  location_kr: string;
 
   @Column()
-  name: string;
-
-  @Column()
-  password: string;
+  location_en: string;
 
   @CreateDateColumn()
   created_at: Date;
