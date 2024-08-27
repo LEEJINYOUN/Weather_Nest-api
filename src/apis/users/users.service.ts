@@ -12,16 +12,18 @@ import {
   IUsersServiceRegister,
 } from './interfaces/users-service.interface';
 import * as bcrypt from 'bcrypt';
+import { AddressService } from '../address/address.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly addressService: AddressService,
   ) {}
 
   // 이메일 체크
-  findOneByEmail({ email }: IUsersServiceFindOneByEmail) {
+  checkEmail({ email }: IUsersServiceFindOneByEmail) {
     return this.usersRepository.findOne({ where: { email } });
   }
 
@@ -30,25 +32,32 @@ export class UsersService {
     email,
     name,
     password,
-  }: IUsersServiceRegister): Promise<User> {
-    // 등록된 이메일 체크
-    const user = await this.findOneByEmail({ email });
+  }: IUsersServiceRegister): Promise<any> {
+    // 이메일 체크
+    const isEmail = await this.checkEmail({ email });
 
-    // 일치하는 유저가 있는 경우
-    if (user) throw new ConflictException('이미 등록된 이메일입니다.');
+    // 일치하는 이메일이 있는 경우
+    if (isEmail) throw new ConflictException('이미 등록된 이메일입니다.');
 
-    // 회원가입 성공
-    return this.usersRepository.save({
+    // 회원가입
+    const saveUser = await this.usersRepository.save({
       email,
       name,
       password,
     });
+
+    // 주소 생성
+    const saveAddress = await this.addressService.createAddress({
+      saveUser,
+    });
+
+    return saveUser;
   }
 
   // 로그인
   async login({ email, password }: IUsersServiceLogin): Promise<string> {
-    // 등록된 이메일 체크
-    const user = await this.findOneByEmail({ email });
+    // 이메일 체크
+    const user = await this.checkEmail({ email });
 
     // 일치하는 유저가 없는 경우
     if (!user)
