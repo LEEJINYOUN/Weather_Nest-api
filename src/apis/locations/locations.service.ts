@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Location } from './entities/location.entity';
 import { Repository } from 'typeorm';
@@ -46,5 +50,22 @@ export class LocationsService {
       location_kr,
       location_en,
     });
+  }
+
+  // 특정 지역명 조회
+  getLocationById(id: number): Promise<Location> {
+    const isLocation = this.locationsRepository.findOne({
+      where: { id },
+    });
+    if (!isLocation) {
+      throw new NotFoundException(`${id}번은 찾을 수 없습니다.`);
+    }
+    return isLocation;
+  }
+
+  // 특정 지역명 삭제
+  async remove(id: number) {
+    const result = await this.locationsRepository.delete({ id });
+    return result.affected ? true : false;
   }
 }
