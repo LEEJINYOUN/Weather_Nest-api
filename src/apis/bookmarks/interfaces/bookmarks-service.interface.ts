@@ -5,5 +5,6 @@ export interface IBookmarksServiceCreate {
 }
 
 export interface IBookmarksServiceFindOneByLocation {
+  user_id: number;
   location_kr: string;
 }

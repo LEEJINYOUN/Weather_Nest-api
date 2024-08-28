@@ -3,18 +3,18 @@ import { BookmarksService } from './bookmarks.service';
 import { CreateBookmarkInput } from './dto/create-bookmark.input';
 import { Bookmark } from './entities/bookmark.entity';
 
-@Controller()
+@Controller('bookmark')
 export class BookmarksController {
   constructor(private readonly bookmarksService: BookmarksService) {}
 
-  // 즐겨찾기 목록 조회
-  @Get('bookmark/:user_id')
+  // 유저별 즐겨찾기 목록 조회
+  @Get(':user_id')
   getBookmarks(@Param('user_id') user_id: number): Promise<Bookmark[]> {
     return this.bookmarksService.getBookmarks(user_id);
   }
 
   // 즐겨찾기 추가 및 삭제
-  @Post('bookmark')
+  @Post()
   async bookmark(
     @Body() createBookmarkInput: CreateBookmarkInput,
   ): Promise<Bookmark> {
