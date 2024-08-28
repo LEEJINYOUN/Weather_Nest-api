@@ -14,18 +14,25 @@ export class BookmarksService {
     private readonly bookmarksRepository: Repository<Bookmark>,
   ) {}
 
+  // 즐겨찾기 목록 조회
+  getBookmarks(user_id: number): Promise<Bookmark[]> {
+    return this.bookmarksRepository.find({
+      where: { user_id },
+    });
+  }
+
   // 즐겨찾기 체크
   checkBookmark({ location_kr }: IBookmarksServiceFindOneByLocation) {
     return this.bookmarksRepository.findOne({ where: { location_kr } });
   }
 
-  // 즐겨찾기 해제
+  // 즐겨찾기 삭제
   async deleteBookmark(id: number): Promise<boolean> {
     const result = await this.bookmarksRepository.delete({ id });
     return result.affected ? true : false;
   }
 
-  // 즐겨찾기 등록
+  // 즐겨찾기 추가
   async createBookmark(
     user_id: number,
     location_kr: string,
