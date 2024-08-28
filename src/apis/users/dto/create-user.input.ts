@@ -3,3 +3,8 @@ export class CreateUserInput {
   name: string;
   password?: string;
 }
+
+export class LoginUserInput {
+  email: string;
+  password: string;
+}

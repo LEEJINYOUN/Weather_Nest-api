@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
-import { CreateUserInput } from './dto/create-user.input';
+import { CreateUserInput, LoginUserInput } from './dto/create-user.input';
 
 @Controller()
 export class UsersController {
@@ -21,10 +21,10 @@ export class UsersController {
 
   // 로그인
   @Post('login')
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ): Promise<string> {
-    return this.usersService.login({ email, password });
+  async login(@Body() loginUserInput: LoginUserInput): Promise<string> {
+    return this.usersService.login({
+      email: loginUserInput.email,
+      password: loginUserInput.password,
+    });
   }
 }

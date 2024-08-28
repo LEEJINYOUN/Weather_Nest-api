@@ -6,12 +6,14 @@ import {
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import {
+  IUserServiceGetAccessToken,
+  IUserServiceLogin,
   IUsersServiceFindOneByEmail,
-  IUsersServiceLogin,
   IUsersServiceRegister,
 } from './interfaces/users-service.interface';
-import * as bcrypt from 'bcrypt';
 import { AddressService } from '../address/address.service';
 
 @Injectable()
@@ -20,6 +22,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly addressService: AddressService,
+    private readonly jwtService: JwtService, //
   ) {}
 
   // 이메일 체크
@@ -47,7 +50,7 @@ export class UsersService {
     });
 
     // 주소 생성
-    const saveAddress = await this.addressService.createAddress({
+    await this.addressService.createAddress({
       saveUser,
     });
 
@@ -55,7 +58,7 @@ export class UsersService {
   }
 
   // 로그인
-  async login({ email, password }: IUsersServiceLogin): Promise<string> {
+  async login({ email, password }: IUserServiceLogin): Promise<string> {
     // 이메일 체크
     const user = await this.checkEmail({ email });
 
@@ -68,6 +71,16 @@ export class UsersService {
     if (!isAuth) throw new UnprocessableEntityException('암호가 틀렸습니다.');
 
     // 4. 로그인 성공한 경우
-    return '로그인 성공';
+    return this.getAccessToken({ user });
+  }
+
+  // 토큰 발급
+  getAccessToken({ user }: IUserServiceGetAccessToken): string {
+    const accessToken = this.jwtService.sign(
+      { sub: user.id },
+      { expiresIn: '1h' },
+    );
+
+    return accessToken;
   }
 }

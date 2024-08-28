@@ -4,6 +4,7 @@ import { UsersModule } from './apis/users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { LocationsModule } from './apis/locations/locations.module';
 import { BookmarksModule } from './apis/bookmarks/bookmarks.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -22,6 +23,14 @@ import { BookmarksModule } from './apis/bookmarks/bookmarks.module';
       synchronize: true, // entity 동기화
       logging: true, // debug 하고 싶을 때
     }),
+    JwtModule.registerAsync({
+      imports: [],
+      useFactory: async () => ({
+        secret: process.env.JWT_SECRET,
+      }),
+      global: true,
+      inject: [],
+    }), // jwt 설정
   ],
 })
 export class AppModule {}
