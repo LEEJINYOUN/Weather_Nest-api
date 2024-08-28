@@ -3,11 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './apis/users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { LocationsModule } from './apis/locations/locations.module';
+import { BookmarksModule } from './apis/bookmarks/bookmarks.module';
 
 @Module({
   imports: [
     UsersModule, //
     LocationsModule, //
+    BookmarksModule, //
     ConfigModule.forRoot(), // env
     TypeOrmModule.forRoot({
       type: 'mysql',
