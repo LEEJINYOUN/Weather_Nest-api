@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
@@ -15,6 +16,7 @@ import {
   IUsersServiceRegister,
 } from './interfaces/users-service.interface';
 import { AddressService } from '../address/address.service';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -49,6 +51,8 @@ export class UsersService {
       password,
     });
 
+    delete saveUser.password;
+
     // 주소 생성
     await this.addressService.createAddress({
       saveUser,
@@ -57,8 +61,22 @@ export class UsersService {
     return saveUser;
   }
 
+  // 토큰 발급
+  getAccessToken({ user }: IUserServiceGetAccessToken): string {
+    const accessToken = this.jwtService.sign(
+      { id: user.id },
+      { expiresIn: '1h' },
+    );
+
+    return accessToken;
+  }
+
   // 로그인
-  async login({ email, password }: IUserServiceLogin): Promise<string> {
+  async login({
+    email,
+    password,
+    response,
+  }: IUserServiceLogin): Promise<string> {
     // 이메일 체크
     const user = await this.checkEmail({ email });
 
@@ -71,16 +89,41 @@ export class UsersService {
     if (!isAuth) throw new UnprocessableEntityException('암호가 틀렸습니다.');
 
     // 4. 로그인 성공한 경우
-    return this.getAccessToken({ user });
+    const jwt = this.getAccessToken({ user });
+    response.cookie('jwt', jwt, { httpOnly: true });
+
+    return '로그인 성공';
   }
 
-  // 토큰 발급
-  getAccessToken({ user }: IUserServiceGetAccessToken): string {
-    const accessToken = this.jwtService.sign(
-      { sub: user.id },
-      { expiresIn: '1h' },
-    );
+  // 토큰 정보 가져오기
+  async user(request: Request) {
+    try {
+      // 쿠키로 jwt 정보 가져오기
+      const cookie = request.cookies['jwt'];
+      const data = await this.jwtService.verifyAsync(cookie);
 
-    return accessToken;
+      if (!data) {
+        throw new UnauthorizedException();
+      }
+
+      // 유저 정보 찾기
+      const user = await this.usersRepository.findOne({
+        where: { id: data.id },
+      });
+
+      // 비밀번호를 제외한 정보 가져오기
+      const { password, ...result } = user;
+
+      return result;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  // 로그아웃
+  logout(response: Response) {
+    response.clearCookie('jwt');
+
+    return '로그아웃 성공';
   }
 }

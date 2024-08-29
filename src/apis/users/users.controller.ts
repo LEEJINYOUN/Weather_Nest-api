@@ -1,8 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { UsersService } from './users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserInput, LoginUserInput } from './dto/create-user.input';
+import { Request, Response } from 'express';
 
 @Controller()
 export class UsersController {
@@ -21,10 +22,30 @@ export class UsersController {
 
   // 로그인
   @Post('login')
-  async login(@Body() loginUserInput: LoginUserInput): Promise<string> {
+  async login(
+    @Body() loginUserInput: LoginUserInput,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<string> {
     return this.usersService.login({
       email: loginUserInput.email,
       password: loginUserInput.password,
+      response,
     });
+  }
+
+  // 토큰 정보 가져오기
+  @Get('user')
+  async user(
+    @Req() request: Request, //
+  ) {
+    return this.usersService.user(request);
+  }
+
+  // 로그아웃
+  @Post('logout')
+  async logout(
+    @Res({ passthrough: true }) response: Response, //
+  ) {
+    return this.usersService.logout(response);
   }
 }
