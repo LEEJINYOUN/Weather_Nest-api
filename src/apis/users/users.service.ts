@@ -86,7 +86,10 @@ export class UsersService {
 
     // 비밀번호가 다른 경우
     const isAuth = await bcrypt.compare(password, user.password);
-    if (!isAuth) throw new UnprocessableEntityException('암호가 틀렸습니다.');
+    if (!isAuth)
+      throw new UnprocessableEntityException(
+        '비밀번호가 맞지 않습니다. 다시 확인해 주세요.',
+      );
 
     // 4. 로그인 성공한 경우
     const jwt = this.getAccessToken({ user });
