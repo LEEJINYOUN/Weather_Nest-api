@@ -34,7 +34,7 @@ export class UsersController {
   }
 
   // 토큰 정보 가져오기
-  @Get('user')
+  @Post('user')
   async user(
     @Req() request: Request, //
   ) {
