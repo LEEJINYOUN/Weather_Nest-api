@@ -43,9 +43,7 @@ export class UsersController {
 
   // 로그아웃
   @Post('logout')
-  async logout(
-    @Res({ passthrough: true }) response: Response, //
-  ) {
-    return this.usersService.logout(response);
+  async logout() {
+    return this.usersService.logout();
   }
 }

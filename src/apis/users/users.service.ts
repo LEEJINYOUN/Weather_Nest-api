@@ -16,7 +16,6 @@ import {
   IUsersServiceRegister,
 } from './interfaces/users-service.interface';
 import { AddressService } from '../address/address.service';
-import { Response } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -100,9 +99,9 @@ export class UsersService {
   // 토큰 정보 가져오기
   async user(request: any): Promise<any> {
     try {
-      const token = request.body.jwt;
+      const token = request.body.jwtToken;
 
-      // 토큰으로 jwt 정보 가져오기
+      // jwt 정보 가져오기
       const data = await this.jwtService.verifyAsync(token);
 
       if (!data) {
@@ -124,9 +123,7 @@ export class UsersService {
   }
 
   // 로그아웃
-  logout(response: Response) {
-    response.clearCookie('jwt');
-
+  logout() {
     return '로그아웃 성공';
   }
 }
