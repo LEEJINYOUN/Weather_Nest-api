@@ -24,12 +24,6 @@ export class BookmarksService {
     });
   }
 
-  // 즐겨찾기 삭제
-  async deleteBookmark(id: number): Promise<boolean> {
-    const result = await this.bookmarksRepository.delete({ id });
-    return result.affected ? true : false;
-  }
-
   // 즐겨찾기 추가
   async createBookmark({
     user_id,
@@ -46,6 +40,12 @@ export class BookmarksService {
     return saveBookmark;
   }
 
+  // 즐겨찾기 삭제
+  async deleteBookmark(id: number): Promise<boolean> {
+    const result = await this.bookmarksRepository.delete({ id });
+    return result.affected ? true : false;
+  }
+
   // 즐겨찾기 추가 및 삭제
   async bookmark({
     user_id,
@@ -53,7 +53,7 @@ export class BookmarksService {
     location_kr,
     location_en,
   }: IBookmarksServiceCreate): Promise<string> {
-    // // 즐겨찾기 체크
+    // 유저별 즐겨찾기 체크
     const isBookmark = await this.getBookmarks({ user_id, location_id });
 
     // 일치하는 값이 없는 경우
