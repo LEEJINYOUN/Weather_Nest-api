@@ -99,7 +99,7 @@ export class UsersService {
   // 토큰 정보 가져오기
   async user(request: any): Promise<any> {
     try {
-      const token = request.body.jwtToken;
+      const token = request.body.token;
 
       // jwt 정보 가져오기
       const data = await this.jwtService.verifyAsync(token);
