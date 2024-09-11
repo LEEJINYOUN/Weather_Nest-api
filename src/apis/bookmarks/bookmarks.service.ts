@@ -1,10 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Bookmark } from './entities/bookmark.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  IBookmarksGetList,
   IBookmarksServiceCreate,
-  IBookmarksServiceFindOneByLocation,
 } from './interfaces/bookmarks-service.interface';
 
 @Injectable()
@@ -15,16 +15,12 @@ export class BookmarksService {
   ) {}
 
   // 유저별 즐겨찾기 목록 조회
-  getBookmarks(user_id: number): Promise<Bookmark[]> {
+  async getBookmarks({
+    user_id,
+    location_id,
+  }: IBookmarksGetList): Promise<Bookmark[]> {
     return this.bookmarksRepository.find({
-      where: { user_id },
-    });
-  }
-
-  // 즐겨찾기 체크
-  checkBookmark({ user_id, location_kr }: IBookmarksServiceFindOneByLocation) {
-    return this.bookmarksRepository.findOne({
-      where: { user_id, location_kr },
+      where: { user_id, location_id },
     });
   }
 
@@ -37,11 +33,13 @@ export class BookmarksService {
   // 즐겨찾기 추가
   async createBookmark({
     user_id,
+    location_id,
     location_kr,
     location_en,
   }: IBookmarksServiceCreate): Promise<Bookmark> {
     const saveBookmark = await this.bookmarksRepository.save({
       user_id,
+      location_id,
       location_kr,
       location_en,
     });
@@ -51,21 +49,22 @@ export class BookmarksService {
   // 즐겨찾기 추가 및 삭제
   async bookmark({
     user_id,
+    location_id,
     location_kr,
     location_en,
-  }: IBookmarksServiceCreate): Promise<any> {
-    // 즐겨찾기 체크
-    const isBookmark = await this.checkBookmark({ user_id, location_kr });
+  }: IBookmarksServiceCreate): Promise<string> {
+    // // 즐겨찾기 체크
+    const isBookmark = await this.getBookmarks({ user_id, location_id });
 
-    // 일치하는 목록이 있는 경우
-    if (isBookmark) {
-      // 즐겨찾기 삭제
-      this.deleteBookmark(isBookmark.id);
-      return '즐겨찾기 삭제';
-    } else {
+    // 일치하는 값이 없는 경우
+    if (!isBookmark[0]) {
       // 즐겨찾기 추가
-      this.createBookmark({ user_id, location_kr, location_en });
+      this.createBookmark({ user_id, location_id, location_kr, location_en });
       return '즐겨찾기 추가';
+    } else {
+      // 즐겨찾기 삭제
+      this.deleteBookmark(isBookmark[0].id);
+      return '즐겨찾기 삭제';
     }
   }
 }
