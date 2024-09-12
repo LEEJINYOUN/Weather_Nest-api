@@ -7,6 +7,11 @@ import {
   IBookmarksServiceCreate,
 } from './interfaces/bookmarks-service.interface';
 
+interface TestType {
+  bookmarkCheck: Bookmark[];
+  location_id: number;
+}
+
 @Injectable()
 export class BookmarksService {
   constructor(
@@ -15,12 +20,18 @@ export class BookmarksService {
   ) {}
 
   // 유저별 즐겨찾기 목록 조회
-  async getBookmarks({
-    user_id,
-    location_id,
-  }: IBookmarksGetList): Promise<Bookmark[]> {
+  async getBookmarks(user_id: number): Promise<Bookmark[]> {
     return this.bookmarksRepository.find({
-      where: { user_id, location_id },
+      where: { user_id },
+    });
+  }
+
+  // 즐겨찾기 등록 여부 체크
+  async getLocationId({ bookmarkCheck, location_id }: TestType): Promise<any> {
+    return bookmarkCheck.filter((item: any, key: number) => {
+      if (item.location_id === location_id) {
+        return item;
+      }
     });
   }
 
@@ -54,7 +65,9 @@ export class BookmarksService {
     location_en,
   }: IBookmarksServiceCreate): Promise<string> {
     // 유저별 즐겨찾기 체크
-    const isBookmark = await this.getBookmarks({ user_id, location_id });
+    const bookmarkCheck = await this.getBookmarks(user_id);
+
+    const isBookmark = await this.getLocationId({ bookmarkCheck, location_id });
 
     // 일치하는 값이 없는 경우
     if (!isBookmark[0]) {
