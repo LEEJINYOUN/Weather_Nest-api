@@ -25,7 +25,7 @@ export class UsersController {
   async login(
     @Body() loginUserInput: LoginUserInput,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<string> {
+  ): Promise<any> {
     return this.usersService.login({
       email: loginUserInput.email,
       password: loginUserInput.password,

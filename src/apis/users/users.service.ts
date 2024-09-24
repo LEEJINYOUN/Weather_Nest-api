@@ -71,11 +71,7 @@ export class UsersService {
   }
 
   // 로그인
-  async login({
-    email,
-    password,
-    response,
-  }: IUserServiceLogin): Promise<string> {
+  async login({ email, password, response }: IUserServiceLogin): Promise<any> {
     // 이메일 체크
     const user = await this.checkEmail({ email });
 
@@ -93,7 +89,14 @@ export class UsersService {
     // 4. 로그인 성공한 경우
     const jwt = this.getAccessToken({ user });
     response.cookie('jwt', jwt, { httpOnly: true });
-    return jwt;
+
+    delete user.password;
+
+    const userData = {
+      user: user,
+      jwt: jwt,
+    };
+    return userData;
   }
 
   // 토큰 정보 가져오기
