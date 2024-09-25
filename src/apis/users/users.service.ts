@@ -126,6 +126,10 @@ export class UsersService {
 
   // 로그아웃
   logout() {
-    return '로그아웃 성공';
+    const result = {
+      message: '로그아웃 성공',
+      statusCode: 201,
+    };
+    return result;
   }
 }
