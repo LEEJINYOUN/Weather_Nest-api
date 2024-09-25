@@ -90,13 +90,12 @@ export class UsersService {
     const jwt = this.getAccessToken({ user });
     response.cookie('jwt', jwt, { httpOnly: true });
 
-    delete user.password;
-
-    const userData = {
-      user: user,
-      jwt: jwt,
+    const loginData = {
+      statusCode: 201,
+      token: jwt,
     };
-    return userData;
+
+    return loginData;
   }
 
   // 토큰 정보 가져오기
