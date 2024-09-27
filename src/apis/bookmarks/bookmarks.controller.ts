@@ -13,13 +13,24 @@ export class BookmarksController {
     return this.bookmarksService.getBookmarks(user_id);
   }
 
+  // 유저별 즐겨찾기 지역 조회
+  @Get(':user_id/:location_id')
+  getBookmarkLocation(
+    @Param('user_id') user_id: number,
+    @Param('location_id') location_id: number,
+  ): Promise<Bookmark> {
+    return this.bookmarksService.getBookmarkLocation({
+      user_id,
+      location_id,
+    });
+  }
   // 즐겨찾기 추가 및 삭제
   @Post(':user_id')
-  async bookmark(
+  async editBookmark(
     @Param('user_id') user_id: number,
     @Body() createBookmarkInput: CreateBookmarkInput,
   ): Promise<string> {
-    return this.bookmarksService.bookmark({
+    return this.bookmarksService.editBookmark({
       user_id,
       location_id: createBookmarkInput.location_id,
       location_kr: createBookmarkInput.location_kr,

@@ -1,3 +1,5 @@
+import { Bookmark } from '../entities/bookmark.entity';
+
 export interface IBookmarksServiceCreate {
   user_id: number;
   location_id: number;
@@ -5,12 +7,12 @@ export interface IBookmarksServiceCreate {
   location_en: string;
 }
 
-export interface IBookmarksGetList {
+export interface IBookmarksServiceGetBookmarkLocation {
   user_id: number;
   location_id: number;
 }
 
-export interface IBookmarksServiceFindOneByLocation {
-  user_id: number;
-  location_kr: string;
+export interface IBookmarksServiceGetLocationId {
+  bookmarkList: Bookmark[];
+  location_id: number;
 }

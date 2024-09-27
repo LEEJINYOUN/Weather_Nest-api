@@ -3,14 +3,10 @@ import { Bookmark } from './entities/bookmark.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  IBookmarksGetList,
   IBookmarksServiceCreate,
+  IBookmarksServiceGetBookmarkLocation,
+  IBookmarksServiceGetLocationId,
 } from './interfaces/bookmarks-service.interface';
-
-interface TestType {
-  bookmarkCheck: Bookmark[];
-  location_id: number;
-}
 
 @Injectable()
 export class BookmarksService {
@@ -26,13 +22,53 @@ export class BookmarksService {
     });
   }
 
-  // 즐겨찾기 등록 여부 체크
-  async getLocationId({ bookmarkCheck, location_id }: TestType): Promise<any> {
-    return bookmarkCheck.filter((item: any, key: number) => {
-      if (item.location_id === location_id) {
+  // 유저별 즐겨찾기 지역 조회
+  async getBookmarkLocation({
+    user_id,
+    location_id,
+  }: IBookmarksServiceGetBookmarkLocation): Promise<Bookmark> {
+    // 즐겨찾기 목록 조회
+    const bookmarkList = await this.getBookmarks(user_id);
+
+    // 즐겨찾기 지역 체크
+    const isLocation = await this.getLocationId({ bookmarkList, location_id });
+
+    if (isLocation[0] !== undefined) {
+      return isLocation[0];
+    } else {
+      return undefined;
+    }
+  }
+
+  // 즐겨찾기 지역 체크
+  async getLocationId({
+    bookmarkList,
+    location_id,
+  }: IBookmarksServiceGetLocationId): Promise<Bookmark[]> {
+    return bookmarkList.filter((item: any, key: number) => {
+      if (item.location_id == location_id) {
         return item;
       }
     });
+  }
+
+  // 즐겨찾기 추가 및 삭제
+  async editBookmark({
+    user_id,
+    location_id,
+    location_kr,
+    location_en,
+  }: IBookmarksServiceCreate): Promise<string> {
+    // 유저별 즐겨찾기 지역 조회
+    const isLocation = await this.getBookmarkLocation({ user_id, location_id });
+
+    if (isLocation === undefined) {
+      this.createBookmark({ user_id, location_id, location_kr, location_en });
+      return '즐겨찾기 추가';
+    } else {
+      this.deleteBookmark(isLocation.id);
+      return '즐겨찾기 삭제';
+    }
   }
 
   // 즐겨찾기 추가
@@ -51,33 +87,9 @@ export class BookmarksService {
     return saveBookmark;
   }
 
-  // 즐겨찾기 삭제
+  // // 즐겨찾기 삭제
   async deleteBookmark(id: number): Promise<boolean> {
     const result = await this.bookmarksRepository.delete({ id });
     return result.affected ? true : false;
-  }
-
-  // 즐겨찾기 추가 및 삭제
-  async bookmark({
-    user_id,
-    location_id,
-    location_kr,
-    location_en,
-  }: IBookmarksServiceCreate): Promise<string> {
-    // 유저별 즐겨찾기 체크
-    const bookmarkCheck = await this.getBookmarks(user_id);
-
-    const isBookmark = await this.getLocationId({ bookmarkCheck, location_id });
-
-    // 일치하는 값이 없는 경우
-    if (!isBookmark[0]) {
-      // 즐겨찾기 추가
-      this.createBookmark({ user_id, location_id, location_kr, location_en });
-      return '즐겨찾기 추가';
-    } else {
-      // 즐겨찾기 삭제
-      this.deleteBookmark(isBookmark[0].id);
-      return '즐겨찾기 삭제';
-    }
   }
 }
