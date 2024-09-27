@@ -18,7 +18,7 @@ export class BookmarksController {
   getBookmarkLocation(
     @Param('user_id') user_id: number,
     @Param('location_id') location_id: number,
-  ): Promise<Bookmark> {
+  ): Promise<any> {
     return this.bookmarksService.getBookmarkLocation({
       user_id,
       location_id,

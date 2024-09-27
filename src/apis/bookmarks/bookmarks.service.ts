@@ -26,17 +26,17 @@ export class BookmarksService {
   async getBookmarkLocation({
     user_id,
     location_id,
-  }: IBookmarksServiceGetBookmarkLocation): Promise<Bookmark> {
+  }: IBookmarksServiceGetBookmarkLocation): Promise<any> {
     // 즐겨찾기 목록 조회
     const bookmarkList = await this.getBookmarks(user_id);
 
     // 즐겨찾기 지역 체크
     const isLocation = await this.getLocationId({ bookmarkList, location_id });
 
-    if (isLocation[0] !== undefined) {
+    if (isLocation.length == 1) {
       return isLocation[0];
     } else {
-      return undefined;
+      return 0;
     }
   }
 
@@ -62,7 +62,7 @@ export class BookmarksService {
     // 유저별 즐겨찾기 지역 조회
     const isLocation = await this.getBookmarkLocation({ user_id, location_id });
 
-    if (isLocation === undefined) {
+    if (isLocation === 0) {
       this.createBookmark({ user_id, location_id, location_kr, location_en });
       return '즐겨찾기 추가';
     } else {
