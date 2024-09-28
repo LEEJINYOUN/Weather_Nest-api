@@ -13,7 +13,7 @@ export class User {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -21,6 +21,9 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({ default: null })
+  image: string;
 
   // 1 : 1 조인 (유저와 주소)
   @OneToOne(() => Address, (address) => address.user)

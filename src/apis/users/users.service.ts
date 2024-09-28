@@ -62,10 +62,7 @@ export class UsersService {
 
   // 토큰 발급
   getAccessToken({ user }: IUserServiceGetAccessToken): string {
-    const accessToken = this.jwtService.sign(
-      { id: user.id },
-      { expiresIn: '1h' },
-    );
+    const accessToken = this.jwtService.sign({ id: user.id });
 
     return accessToken;
   }
