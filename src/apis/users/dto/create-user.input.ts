@@ -1,4 +1,4 @@
-export class CreateUserInput {
+export class RegisterUserInput {
   email: string;
   name: string;
   password?: string;

@@ -2,16 +2,16 @@ import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { UsersService } from './users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
-import { CreateUserInput, LoginUserInput } from './dto/create-user.input';
+import { LoginUserInput, RegisterUserInput } from './dto/create-user.input';
 import { Request, Response } from 'express';
 
-@Controller()
+@Controller('auth')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   // 회원가입
   @Post('register')
-  async register(@Body() createUserInput: CreateUserInput): Promise<User> {
+  async register(@Body() createUserInput: RegisterUserInput): Promise<User> {
     const hashedPassword = await bcrypt.hash(createUserInput.password, 10);
     return this.usersService.register({
       email: createUserInput.email,
@@ -33,12 +33,12 @@ export class UsersController {
     });
   }
 
-  // 토큰 정보 가져오기
-  @Post('user')
+  // 유저 정보 가져오기
+  @Post('getUser')
   async user(
     @Req() request: Request, //
   ) {
-    return this.usersService.user(request);
+    return this.usersService.getUser(request);
   }
 
   // 로그아웃

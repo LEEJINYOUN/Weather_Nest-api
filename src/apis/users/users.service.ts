@@ -60,30 +60,23 @@ export class UsersService {
     return saveUser;
   }
 
-  // 토큰 발급
-  getAccessToken({ user }: IUserServiceGetAccessToken): string {
-    const accessToken = this.jwtService.sign({ id: user.id });
-
-    return accessToken;
-  }
-
   // 로그인
   async login({ email, password, response }: IUserServiceLogin): Promise<any> {
-    // 이메일 체크
+    // 1. 이메일 체크
     const user = await this.checkEmail({ email });
 
-    // 일치하는 유저가 없는 경우
+    // 2. 일치하는 유저 X
     if (!user)
       throw new UnprocessableEntityException('등록된 이메일이 없습니다.');
 
-    // 비밀번호가 다른 경우
+    // 3. 일치하는 유저 O, 비밀번호 X
     const isAuth = await bcrypt.compare(password, user.password);
     if (!isAuth)
       throw new UnprocessableEntityException(
         '비밀번호가 맞지 않습니다. 다시 확인해 주세요.',
       );
 
-    // 4. 로그인 성공한 경우
+    // 4. 일치하는 유저 O, 비밀번호 O
     const jwt = this.getAccessToken({ user });
     response.cookie('jwt', jwt, { httpOnly: true });
 
@@ -95,8 +88,13 @@ export class UsersService {
     return loginData;
   }
 
+  // 토큰 발행
+  getAccessToken({ user }: IUserServiceGetAccessToken): string {
+    return this.jwtService.sign({ id: user.id });
+  }
+
   // 토큰 정보 가져오기
-  async user(request: any): Promise<any> {
+  async getUser(request: any): Promise<any> {
     try {
       const token = request.body.token;
 
@@ -126,6 +124,9 @@ export class UsersService {
     const result = {
       message: '로그아웃 성공',
       statusCode: 201,
+      token: '',
+      httpOnly: true,
+      maxAge: 0,
     };
     return result;
   }
