@@ -41,8 +41,12 @@ export class UsersService {
     const isEmail = await this.checkEmail({ email });
 
     // 일치하는 이메일이 있는 경우
-    if (isEmail) throw new ConflictException('이미 등록된 이메일입니다.');
-
+    if (isEmail)
+      throw new ConflictException({
+        objectOrError: '이메일 오류',
+        descriptionOrOptions:
+          '이미 등록된 이메일입니다. 입력한 이메일을 확인하고 다시 시도하세요.',
+      });
     // 회원가입
     const saveUser = await this.usersRepository.save({
       email,
@@ -67,14 +71,20 @@ export class UsersService {
 
     // 2. 일치하는 유저 X
     if (!user)
-      throw new UnprocessableEntityException('등록된 이메일이 없습니다.');
+      throw new UnprocessableEntityException({
+        objectOrError: '이메일 오류',
+        descriptionOrOptions:
+          '등록된 이메일이 없습니다. 입력한 이메일을 확인하고 다시 시도하세요.',
+      });
 
     // 3. 일치하는 유저 O, 비밀번호 X
     const isAuth = await bcrypt.compare(password, user.password);
     if (!isAuth)
-      throw new UnprocessableEntityException(
-        '비밀번호가 맞지 않습니다. 다시 확인해 주세요.',
-      );
+      throw new UnprocessableEntityException({
+        objectOrError: '비밀번호 오류',
+        descriptionOrOptions:
+          '입력한 비밀번호가 올바르지 않습니다. 입력한 비밀번호를 확인하고 다시 시도하세요.',
+      });
 
     // 4. 일치하는 유저 O, 비밀번호 O
     const jwt = this.getAccessToken({ user });
