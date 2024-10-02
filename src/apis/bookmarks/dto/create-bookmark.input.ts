@@ -3,4 +3,5 @@ export class CreateBookmarkInput {
   location_id: number;
   location_kr: string;
   location_en: string;
+  image_number: number;
 }

@@ -58,6 +58,7 @@ export class BookmarksService {
     location_id,
     location_kr,
     location_en,
+    image_number,
   }: IBookmarksServiceCreate): Promise<any> {
     // 유저별 즐겨찾기 지역 조회
     const isLocation = await this.getBookmarkLocation({ user_id, location_id });
@@ -68,6 +69,7 @@ export class BookmarksService {
         location_id,
         location_kr,
         location_en,
+        image_number,
       });
     } else {
       return this.deleteBookmark(isLocation.id);
@@ -80,12 +82,14 @@ export class BookmarksService {
     location_id,
     location_kr,
     location_en,
+    image_number,
   }: IBookmarksServiceCreate): Promise<Bookmark> {
     const saveBookmark = await this.bookmarksRepository.save({
       user_id,
       location_id,
       location_kr,
       location_en,
+      image_number,
     });
     return saveBookmark;
   }

@@ -23,6 +23,9 @@ export class Bookmark {
   @Column()
   location_en: string;
 
+  @Column()
+  image_number: number;
+
   @CreateDateColumn()
   created_at: Date;
 }

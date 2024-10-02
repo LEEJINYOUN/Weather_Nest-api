@@ -35,6 +35,7 @@ export class BookmarksController {
       location_id: createBookmarkInput.location_id,
       location_kr: createBookmarkInput.location_kr,
       location_en: createBookmarkInput.location_en,
+      image_number: createBookmarkInput.image_number,
     });
   }
 }
