@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { CreateLocationInput } from './dto/create-location.input';
@@ -16,13 +17,13 @@ export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}
 
   // 모든 지역명 조회
-  @Get()
+  @Get('all')
   getLocations(): Promise<Location[]> {
     return this.locationsService.getLocations();
   }
 
   // 지역명 등록
-  @Post()
+  @Post('create')
   async createLocation(
     @Body() createLocationInput: CreateLocationInput,
   ): Promise<Location> {
@@ -32,10 +33,16 @@ export class LocationsController {
     });
   }
 
-  // 특정 지역명 조회
+  // 특정 지역명 번호로 조회
   @Get(':id')
   getLocationById(@Param('id') id: number): Promise<Location> {
     return this.locationsService.getLocationById(id);
+  }
+
+  // 특정 지역명 이름으로 조회
+  @Get()
+  getLocationByName(@Query('name') name: string): Promise<Location> {
+    return this.locationsService.getLocationByName(name);
   }
 
   // 특정 지역명 수정

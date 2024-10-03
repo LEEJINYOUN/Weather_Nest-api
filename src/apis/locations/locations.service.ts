@@ -12,6 +12,11 @@ import {
 } from './interfaces/locations-service.interface';
 import { CreateLocationInput } from './dto/create-location.input';
 
+interface PropsType {
+  userId: number;
+  name: string;
+}
+
 @Injectable()
 export class LocationsService {
   constructor(
@@ -66,6 +71,14 @@ export class LocationsService {
     if (!isLocation) {
       throw new NotFoundException(`${id}번은 찾을 수 없습니다.`);
     }
+    return isLocation;
+  }
+
+  // 특정 지역명 이름으로 조회
+  async getLocationByName(name: string): Promise<any> {
+    const isLocation = await this.locationsRepository.findOne({
+      where: { location_kr: name },
+    });
     return isLocation;
   }
 
