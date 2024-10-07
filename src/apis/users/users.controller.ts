@@ -18,6 +18,12 @@ import { Request, Response } from 'express';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // 모든 유저 조회
+  @Get('users')
+  getUsers(): Promise<User[]> {
+    return this.usersService.getUsers();
+  }
+
   // 회원가입
   @Post('register')
   async register(@Body() createUserInput: RegisterUserInput): Promise<User> {

@@ -26,6 +26,11 @@ export class UsersService {
     private readonly jwtService: JwtService, //
   ) {}
 
+  // 모든 유저 조회
+  getUsers(): Promise<User[]> {
+    return this.usersRepository.find();
+  }
+
   // 이메일 체크
   checkEmail({ email }: IUsersServiceFindOneByEmail) {
     return this.usersRepository.findOne({ where: { email } });
