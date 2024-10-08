@@ -7,6 +7,7 @@ import {
   IClothesServiceFindOneByImage,
   IClothesServiceStore,
 } from './interfaces/clothes-service.interface';
+import { CreateClothesInput } from './dto/create-clothes.input';
 
 @Injectable()
 export class ClothesService {
@@ -15,14 +16,35 @@ export class ClothesService {
     private readonly clothesRepository: Repository<Clothes>,
   ) {}
 
-  // 모든 옷 조회
-  getClothes(): Promise<Clothes[]> {
-    return this.clothesRepository.find();
-  }
-
-  // 옷 이름 체크
+  // 옷 이미지 이름 체크
   findClothesImage({ image }: IClothesServiceFindOneByImage) {
     return this.clothesRepository.findOne({ where: { image } });
+  }
+
+  // 최저 기온 필터
+  findClothesByStartTemp(temp: number) {
+    return this.clothesRepository.find({
+      where: { startTemp: LessThanOrEqual(temp) },
+    });
+  }
+
+  // 최고 기온 필터
+  findClothesByEndTemp({ temp, startClothes }: IClothesServiceFindEndTemp) {
+    return startClothes.filter((item) => {
+      return temp <= item.endTemp;
+    });
+  }
+
+  // id로 옷 찾기
+  findClothesId(id: number) {
+    return this.clothesRepository.findOne({
+      where: { id },
+    });
+  }
+
+  // 모든 옷 조회
+  async getClothes(): Promise<Clothes[]> {
+    return await this.clothesRepository.find();
   }
 
   // 옷 등록
@@ -49,22 +71,8 @@ export class ClothesService {
     });
   }
 
-  // 최저 기온 필터
-  findClothesByStartTemp(temp: number) {
-    return this.clothesRepository.find({
-      where: { startTemp: LessThanOrEqual(temp) },
-    });
-  }
-
-  // 최고 기온 필터
-  findClothesByEndTemp({ temp, startClothes }: IClothesServiceFindEndTemp) {
-    return startClothes.filter((item) => {
-      return temp <= item.endTemp;
-    });
-  }
-
   // 기온 별 옷 조회
-  async getClothesByTemp(temp: number) {
+  async getClothesByTemp(temp: number): Promise<Clothes[] | number> {
     // 최저 기온 필터
     const startClothes = await this.findClothesByStartTemp(temp);
 
@@ -76,5 +84,23 @@ export class ClothesService {
     } else {
       return 0;
     }
+  }
+
+  //특정 옷 수정
+  async updateClothes(
+    id: number,
+    createClothesInput: CreateClothesInput,
+  ): Promise<Clothes> {
+    const clothes = await this.findClothesId(id);
+
+    Object.assign(clothes, createClothesInput);
+
+    return await this.clothesRepository.save(clothes);
+  }
+
+  // 특정 옷 삭제
+  async deleteClothes(id: number): Promise<boolean> {
+    const result = await this.clothesRepository.delete({ id });
+    return result.affected ? true : false;
   }
 }
