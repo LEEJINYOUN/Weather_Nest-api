@@ -12,11 +12,6 @@ import {
 } from './interfaces/locations-service.interface';
 import { CreateLocationInput } from './dto/create-location.input';
 
-interface PropsType {
-  userId: number;
-  name: string;
-}
-
 @Injectable()
 export class LocationsService {
   constructor(

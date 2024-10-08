@@ -5,12 +5,14 @@ import { ConfigModule } from '@nestjs/config';
 import { LocationsModule } from './apis/locations/locations.module';
 import { BookmarksModule } from './apis/bookmarks/bookmarks.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ClothesModule } from './apis/clothes/clothes.module';
 
 @Module({
   imports: [
     UsersModule, //
     LocationsModule, //
     BookmarksModule, //
+    ClothesModule, //
     ConfigModule.forRoot(), // env
     TypeOrmModule.forRoot({
       type: 'mysql',
