@@ -15,9 +15,6 @@ export class Bookmark {
   user_id: number;
 
   @Column()
-  location_id: number;
-
-  @Column()
   location_kr: string;
 
   @Column()

@@ -25,13 +25,13 @@ export class BookmarksService {
   // 유저별 즐겨찾기 지역 조회
   async getBookmarkLocation({
     user_id,
-    location_id,
+    location_kr,
   }: IBookmarksServiceGetBookmarkLocation): Promise<any> {
     // 즐겨찾기 목록 조회
     const bookmarkList = await this.getBookmarks(user_id);
 
     // 즐겨찾기 지역 체크
-    const isLocation = await this.getLocationId({ bookmarkList, location_id });
+    const isLocation = await this.getLocationId({ bookmarkList, location_kr });
 
     if (isLocation.length == 1) {
       return isLocation[0];
@@ -43,10 +43,10 @@ export class BookmarksService {
   // 즐겨찾기 지역 체크
   async getLocationId({
     bookmarkList,
-    location_id,
+    location_kr,
   }: IBookmarksServiceGetLocationId): Promise<Bookmark[]> {
     return bookmarkList.filter((item: any, key: number) => {
-      if (item.location_id == location_id) {
+      if (item.location_kr == location_kr) {
         return item;
       }
     });
@@ -55,18 +55,16 @@ export class BookmarksService {
   // 즐겨찾기 추가 및 삭제
   async editBookmark({
     user_id,
-    location_id,
     location_kr,
     location_en,
     image_number,
   }: IBookmarksServiceCreate): Promise<any> {
     // 유저별 즐겨찾기 지역 조회
-    const isLocation = await this.getBookmarkLocation({ user_id, location_id });
+    const isLocation = await this.getBookmarkLocation({ user_id, location_kr });
 
     if (isLocation === 0) {
       return this.createBookmark({
         user_id,
-        location_id,
         location_kr,
         location_en,
         image_number,
@@ -79,14 +77,12 @@ export class BookmarksService {
   // 즐겨찾기 추가
   async createBookmark({
     user_id,
-    location_id,
     location_kr,
     location_en,
     image_number,
   }: IBookmarksServiceCreate): Promise<Bookmark> {
     const saveBookmark = await this.bookmarksRepository.save({
       user_id,
-      location_id,
       location_kr,
       location_en,
       image_number,
