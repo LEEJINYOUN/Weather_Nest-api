@@ -15,14 +15,12 @@ import {
   IUsersServiceFindOneByEmail,
   IUsersServiceRegister,
 } from './interfaces/users-service.interface';
-import { AddressService } from '../address/address.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    private readonly addressService: AddressService,
     private readonly jwtService: JwtService, //
   ) {}
 
@@ -60,11 +58,6 @@ export class UsersService {
     });
 
     delete saveUser.password;
-
-    // 주소 생성
-    await this.addressService.createAddress({
-      saveUser,
-    });
 
     return saveUser;
   }
