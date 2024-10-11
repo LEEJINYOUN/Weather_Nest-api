@@ -20,9 +20,6 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: null })
-  image: string;
-
   @CreateDateColumn()
   created_at: Date;
 }
