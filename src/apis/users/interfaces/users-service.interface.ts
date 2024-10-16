@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { User } from '../entities/user.entity';
 
-export interface IUsersServiceRegister {
+export interface IUsersServiceCreateUser {
   email: string;
   name: string;
   password?: string;
