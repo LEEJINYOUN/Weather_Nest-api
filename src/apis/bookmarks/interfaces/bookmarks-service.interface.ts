@@ -1,6 +1,6 @@
 import { Bookmark } from '../entities/bookmark.entity';
 
-export interface IBookmarksServiceInput {
+export interface IBookmarksServiceDto {
   locationKr: string;
   locationEn: string;
   imageNumber: number;
@@ -8,7 +8,7 @@ export interface IBookmarksServiceInput {
 
 export interface IBookmarksServiceCreate {
   userId: number;
-  createBookmarkDto: IBookmarksServiceInput;
+  createBookmarkDto: IBookmarksServiceDto;
 }
 
 export interface IBookmarksServiceGetBookmarkByKr {

@@ -1,4 +1,4 @@
-export class CreateClothesInput {
+export class CreateClothesDto {
   category: string;
   name: string;
   startTemp: number;

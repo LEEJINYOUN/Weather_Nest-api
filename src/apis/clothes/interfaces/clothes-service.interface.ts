@@ -1,6 +1,6 @@
 import { Clothes } from '../entities/clothes.entity';
 
-export interface IClothesServiceStore {
+export interface IClothesServiceCreate {
   category: string;
   name: string;
   startTemp: number;

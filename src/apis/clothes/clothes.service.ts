@@ -3,11 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Clothes } from './entities/clothes.entity';
 import { LessThanOrEqual, Repository } from 'typeorm';
 import {
+  IClothesServiceCreate,
   IClothesServiceFindEndTemp,
   IClothesServiceFindOneByImage,
-  IClothesServiceStore,
 } from './interfaces/clothes-service.interface';
-import { CreateClothesInput } from './dto/create-clothes.input';
+import { CreateClothesDto } from './dto/create-clothes.dto';
 
 @Injectable()
 export class ClothesService {
@@ -54,14 +54,14 @@ export class ClothesService {
     startTemp,
     endTemp,
     image,
-  }: IClothesServiceStore): Promise<Clothes> {
-    // 등록된 옷 체크
+  }: IClothesServiceCreate): Promise<Clothes> {
+    // 1. 등록된 옷 체크
     const isClothes = await this.findClothesImage({ image });
 
-    // 일치하는 옷이 있는 경우
+    // 2. 일치하는 옷이 있는 경우
     if (isClothes) throw new ConflictException('이미 등록된 옷입니다.');
 
-    // 옷 등록 성공
+    // 3. 옷 등록 성공
     return await this.clothesRepository.save({
       category,
       name,
@@ -73,10 +73,10 @@ export class ClothesService {
 
   // 기온 별 옷 조회
   async getClothesByTemp(temp: number): Promise<Clothes[] | number> {
-    // 최저 기온 필터
+    // 1. 최저 기온 필터
     const startClothes = await this.findClothesByStartTemp(temp);
 
-    // 최고 기온 필터
+    // 2. 최고 기온 필터
     const endClothes = this.findClothesByEndTemp({ temp, startClothes });
 
     if (endClothes.length >= 1) {
@@ -86,14 +86,14 @@ export class ClothesService {
     }
   }
 
-  //특정 옷 수정
+  // 특정 옷 수정
   async updateClothes(
     id: number,
-    createClothesInput: CreateClothesInput,
+    createClothesDto: CreateClothesDto,
   ): Promise<Clothes> {
     const clothes = await this.findClothesId(id);
 
-    Object.assign(clothes, createClothesInput);
+    Object.assign(clothes, createClothesDto);
 
     return await this.clothesRepository.save(clothes);
   }

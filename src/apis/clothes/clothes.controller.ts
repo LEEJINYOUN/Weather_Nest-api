@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ClothesService } from './clothes.service';
 import { Clothes } from './entities/clothes.entity';
-import { CreateClothesInput } from './dto/create-clothes.input';
+import { CreateClothesDto } from './dto/create-clothes.dto';
 
 @Controller('clothes')
 export class ClothesController {
@@ -24,14 +24,14 @@ export class ClothesController {
   // 옷 등록
   @Post('create')
   async createClothes(
-    @Body() createClothesInput: CreateClothesInput,
+    @Body() createClothesDto: CreateClothesDto,
   ): Promise<Clothes> {
     return await this.clothesService.createClothes({
-      category: createClothesInput.category,
-      name: createClothesInput.name,
-      startTemp: createClothesInput.startTemp,
-      endTemp: createClothesInput.endTemp,
-      image: createClothesInput.image,
+      category: createClothesDto.category,
+      name: createClothesDto.name,
+      startTemp: createClothesDto.startTemp,
+      endTemp: createClothesDto.endTemp,
+      image: createClothesDto.image,
     });
   }
 
@@ -45,9 +45,9 @@ export class ClothesController {
   @Put(':id')
   async updateClothes(
     @Param('id') id: number,
-    @Body() createClothesInput: CreateClothesInput,
+    @Body() createClothesDto: CreateClothesDto,
   ): Promise<Clothes> {
-    return await this.clothesService.updateClothes(id, createClothesInput);
+    return await this.clothesService.updateClothes(id, createClothesDto);
   }
 
   // 특정 옷 삭제

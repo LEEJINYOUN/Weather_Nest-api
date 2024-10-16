@@ -28,10 +28,10 @@ export class LocationsService {
     countryId,
     locationName,
   }: ILocationsServiceFindOneByName): Promise<any> {
-    // 지역 목록 조회
+    // 1. 지역 목록 조회
     const locationList = await this.getAllLocation(countryId);
 
-    // 지역 체크
+    // 2. 지역 체크
     const isLocation = await this.getLocationFindOneByKr({
       locationList,
       locationName,
@@ -81,7 +81,7 @@ export class LocationsService {
     });
   }
 
-  // 특정 나라 수정
+  // 특정 지역 수정
   async updateLocation(
     id: number,
     createLocationDto: CreateLocationDto,
@@ -93,7 +93,7 @@ export class LocationsService {
     return await this.locationsRepository.save(location);
   }
 
-  // 특정 나라 삭제
+  // 특정 지역 삭제
   async deleteLocation(id: number): Promise<boolean> {
     const result = await this.locationsRepository.delete({ id });
     return result.affected ? true : false;

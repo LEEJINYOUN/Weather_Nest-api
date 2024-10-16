@@ -27,10 +27,10 @@ export class BookmarksService {
     userId,
     locationKr,
   }: IBookmarksServiceGetBookmarkByKr): Promise<any> {
-    // 즐겨찾기 목록 조회
+    // 1. 즐겨찾기 목록 조회
     const bookmarkList = await this.getAllBookmark(userId);
 
-    // // 즐겨찾기 지역 체크
+    // 2. 즐겨찾기 지역 체크
     const isLocation = await this.getLocationByKr({ bookmarkList, locationKr });
     if (isLocation.length == 1) {
       return isLocation[0];
@@ -56,6 +56,7 @@ export class BookmarksService {
     userId,
     createBookmarkDto,
   }: IBookmarksServiceCreate): Promise<any> {
+    // 1. 즐겨찾기 지역 조회
     const isBookmark = await this.getBookmarkByKr({
       userId,
       locationKr: createBookmarkDto.locationKr,
