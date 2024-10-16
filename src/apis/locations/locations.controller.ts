@@ -10,49 +10,50 @@ import {
 } from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { Location } from './entities/location.entity';
-import { CreateLocationInput } from './dto/create-location.input';
+import { CreateLocationDto } from './dto/create-location.dto';
 
 @Controller('location')
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}
 
-  // // 모든 지역 조회
-  // @Get('all')
-  // async getLocations(): Promise<Location[]> {
-  //   return await this.locationsService.getLocations();
-  // }
+  // 나라별 모든 지역 조회
+  @Get('all/:countryId')
+  getAllLocation(@Param('countryId') countryId: number): Promise<Location[]> {
+    return this.locationsService.getAllLocation(countryId);
+  }
 
-  // // 지역 등록
-  // @Post('create')
-  // async createLocation(
-  //   @Body() createLocationInput: CreateLocationInput,
-  // ): Promise<Location> {
-  //   return await this.locationsService.createLocation({
-  //     country_id: createLocationInput.country_id,
-  //     location: createLocationInput.location,
-  //   });
-  // }
+  // 나라별 지역 조회
+  @Get(':countryId')
+  getLocationByName(
+    @Param('countryId') countryId: number,
+    @Query('locationName') locationName: string,
+  ): Promise<any> {
+    return this.locationsService.getLocationByName({
+      countryId,
+      locationName,
+    });
+  }
 
-  // // 나라 별 지역 조회
-  // @Get(':country_id')
-  // getLocationsByCountryId(
-  //   @Param('country_id') country_id: number,
-  // ): Promise<Location[]> {
-  //   return this.locationsService.getLocationsByCountryId(country_id);
-  // }
+  // 지역 등록
+  @Post('create')
+  async createLocation(
+    @Body() createLocationDto: CreateLocationDto,
+  ): Promise<Location> {
+    return await this.locationsService.createLocation(createLocationDto);
+  }
 
-  // // 특정 나라 수정
-  // @Put(':id')
-  // async updateLocation(
-  //   @Param('id') id: number,
-  //   @Body() createLocationInput: CreateLocationInput,
-  // ): Promise<Location> {
-  //   return await this.locationsService.updateLocation(id, createLocationInput);
-  // }
+  // 특정 지역 수정
+  @Put(':id')
+  async updateLocation(
+    @Param('id') id: number,
+    @Body() createLocationDto: CreateLocationDto,
+  ): Promise<Location> {
+    return await this.locationsService.updateLocation(id, createLocationDto);
+  }
 
-  // // 특정 나라 삭제
-  // @Delete(':id')
-  // async deleteLocation(@Param('id') id: number): Promise<boolean> {
-  //   return await this.locationsService.deleteLocation(id);
-  // }
+  // 특정 지역 삭제
+  @Delete(':id')
+  async deleteLocation(@Param('id') id: number): Promise<boolean> {
+    return await this.locationsService.deleteLocation(id);
+  }
 }

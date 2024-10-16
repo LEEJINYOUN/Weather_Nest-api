@@ -36,10 +36,10 @@ export class CountriesService {
       where: { name: createCountryDto.name },
     });
 
-    // 일치하는 나라가 있는 경우
+    // 1. 일치하는 나라가 있는 경우
     if (isCountry) throw new ConflictException('이미 등록된 나라입니다.');
 
-    // 옷 등록 성공
+    // 2. 나라 등록 성공
     return await this.countriesRepository.save({
       name: createCountryDto.name,
     });

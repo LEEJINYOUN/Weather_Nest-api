@@ -1,8 +1,13 @@
-export interface ILocationsServiceStore {
-  country_id: number;
-  location: string;
+export interface ILocationsServiceFindOneByName {
+  countryId: number;
+  locationName: string;
 }
 
 export interface ILocationsServiceFindOneByLocation {
-  location: string;
+  locationName: string;
+}
+
+export interface ILocationsServiceFindOneByKr {
+  locationList: any[];
+  locationName: string;
 }
