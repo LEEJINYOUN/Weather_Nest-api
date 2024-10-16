@@ -32,7 +32,7 @@ export class UsersService {
 
   // 특정 유저 조회
   async getUserById(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id: id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) throw new NotFoundException(`${id}번 유저는 존재하지 않습니다.`);
     return user;
   }
