@@ -12,16 +12,16 @@ export class Bookmark {
   id: number;
 
   @Column()
-  user_id: number;
+  userId: number;
 
   @Column()
-  location_kr: string;
+  locationKr: string;
 
   @Column()
-  location_en: string;
+  locationEn: string;
 
   @Column()
-  image_number: number;
+  imageNumber: number;
 
   @CreateDateColumn()
   created_at: Date;
