@@ -18,8 +18,10 @@ export class LocationsController {
 
   // 나라별 모든 지역 조회
   @Get('all/:countryId')
-  getAllLocation(@Param('countryId') countryId: number): Promise<Location[]> {
-    return this.locationsService.getAllLocation(countryId);
+  getAllLocationByCountryId(
+    @Param('countryId') countryId: number,
+  ): Promise<Location[]> {
+    return this.locationsService.getAllLocationByCountryId(countryId);
   }
 
   // 나라별 지역 조회

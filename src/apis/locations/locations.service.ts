@@ -16,11 +16,17 @@ export class LocationsService {
   ) {}
 
   // 나라별 모든 지역 조회
-  async getAllLocation(countryId: number): Promise<Location[]> {
-    return this.locationsRepository.find({
-      where: { countryId },
-      order: { locationName: 'asc' },
-    });
+  async getAllLocationByCountryId(countryId: number): Promise<Location[]> {
+    if (countryId == 0) {
+      return this.locationsRepository.find({
+        order: { id: 'ASC' },
+      });
+    } else {
+      return this.locationsRepository.find({
+        where: { countryId },
+        order: { locationName: 'ASC' },
+      });
+    }
   }
 
   // 나라별 지역 조회
@@ -29,7 +35,7 @@ export class LocationsService {
     locationName,
   }: ILocationsServiceFindOneByName): Promise<any> {
     // 1. 지역 목록 조회
-    const locationList = await this.getAllLocation(countryId);
+    const locationList = await this.getAllLocationByCountryId(countryId);
 
     // 2. 지역 체크
     const isLocation = await this.getLocationFindOneByKr({
