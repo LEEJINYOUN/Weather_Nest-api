@@ -16,23 +16,21 @@ import { CreateLocationDto } from './dto/create-location.dto';
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}
 
-  // 나라별 모든 지역 조회
+  // 모든 지역 조회
   @Get('all')
   getAllLocation(): Promise<Location[]> {
     return this.locationsService.getAllLocation();
   }
 
   // 나라별 지역 조회
-  // @Get(':countryId')
-  // getLocationByName(
-  //   @Param('countryId') countryId: number,
-  //   @Query('locationName') locationName: string,
-  // ): Promise<any> {
-  //   return this.locationsService.getLocationByName({
-  //     countryId,
-  //     locationName,
-  //   });
-  // }
+  @Get(':countryId')
+  getAllLocationByCountry(
+    @Param('countryId') countryId: number,
+  ): Promise<Location[]> {
+    return this.locationsService.getAllLocationByCountry({
+      countryId,
+    });
+  }
 
   // 지역 등록
   @Post('create')

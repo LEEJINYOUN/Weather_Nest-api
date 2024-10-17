@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Location } from './entities/location.entity';
 import {
+  ILocationsServiceFindOneByCountry,
   ILocationsServiceFindOneByKr,
-  ILocationsServiceFindOneByName,
 } from './interfaces/location-service.interface';
 import { CreateLocationDto } from './dto/create-location.dto';
 
@@ -15,7 +15,7 @@ export class LocationsService {
     private readonly locationsRepository: Repository<Location>,
   ) {}
 
-  // 나라별 모든 지역 조회
+  // 모든 지역 조회
   async getAllLocation(): Promise<Location[]> {
     return this.locationsRepository.find({
       order: { locationName: 'ASC' },
@@ -23,25 +23,17 @@ export class LocationsService {
   }
 
   // 나라별 지역 조회
-  // async getLocationByName({
-  //   countryId,
-  //   locationName,
-  // }: ILocationsServiceFindOneByName): Promise<any> {
-  //   // 1. 지역 목록 조회
-  //   const locationList = await this.getAllLocationByCountryId(countryId);
+  async getAllLocationByCountry({
+    countryId,
+  }: ILocationsServiceFindOneByCountry): Promise<Location[]> {
+    // 1. 지역 목록 조회
+    const locationList = await this.locationsRepository.find({
+      where: { countryId },
+      order: { locationName: 'ASC' },
+    });
 
-  //   // 2. 지역 체크
-  //   const isLocation = await this.getLocationFindOneByKr({
-  //     locationList,
-  //     locationName,
-  //   });
-
-  //   if (isLocation.length == 1) {
-  //     return isLocation[0];
-  //   } else {
-  //     return 0;
-  //   }
-  // }
+    return locationList;
+  }
 
   //  지역 체크
   async getLocationFindOneByKr({
