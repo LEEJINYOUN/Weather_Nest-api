@@ -16,39 +16,32 @@ export class LocationsService {
   ) {}
 
   // 나라별 모든 지역 조회
-  async getAllLocationByCountryId(countryId: number): Promise<Location[]> {
-    if (countryId == 0) {
-      return this.locationsRepository.find({
-        order: { id: 'ASC' },
-      });
-    } else {
-      return this.locationsRepository.find({
-        where: { countryId },
-        order: { locationName: 'ASC' },
-      });
-    }
+  async getAllLocation(): Promise<Location[]> {
+    return this.locationsRepository.find({
+      order: { locationName: 'ASC' },
+    });
   }
 
   // 나라별 지역 조회
-  async getLocationByName({
-    countryId,
-    locationName,
-  }: ILocationsServiceFindOneByName): Promise<any> {
-    // 1. 지역 목록 조회
-    const locationList = await this.getAllLocationByCountryId(countryId);
+  // async getLocationByName({
+  //   countryId,
+  //   locationName,
+  // }: ILocationsServiceFindOneByName): Promise<any> {
+  //   // 1. 지역 목록 조회
+  //   const locationList = await this.getAllLocationByCountryId(countryId);
 
-    // 2. 지역 체크
-    const isLocation = await this.getLocationFindOneByKr({
-      locationList,
-      locationName,
-    });
+  //   // 2. 지역 체크
+  //   const isLocation = await this.getLocationFindOneByKr({
+  //     locationList,
+  //     locationName,
+  //   });
 
-    if (isLocation.length == 1) {
-      return isLocation[0];
-    } else {
-      return 0;
-    }
-  }
+  //   if (isLocation.length == 1) {
+  //     return isLocation[0];
+  //   } else {
+  //     return 0;
+  //   }
+  // }
 
   //  지역 체크
   async getLocationFindOneByKr({
