@@ -6,16 +6,25 @@ import {
 } from 'typeorm';
 
 // 테이블 설정
-@Entity('locations')
-export class Location {
+@Entity('clothes')
+export class Clothes {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()
-  countryId: number;
+  category: string;
 
-  @Column({ unique: true })
-  locationName: string;
+  @Column()
+  name: string;
+
+  @Column()
+  startTemp: number;
+
+  @Column()
+  endTemp: number;
+
+  @Column()
+  image: string;
 
   @CreateDateColumn()
   created_at: Date;

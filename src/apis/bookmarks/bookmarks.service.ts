@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   IBookmarksServiceCreate,
-  IBookmarksServiceGetBookmarkLocation,
-  IBookmarksServiceGetLocationId,
+  IBookmarksServiceGetBookmarkByKr,
+  IBookmarksServiceGetLocationByKr,
 } from './interfaces/bookmarks-service.interface';
 
 @Injectable()
@@ -16,23 +16,22 @@ export class BookmarksService {
   ) {}
 
   // 유저별 즐겨찾기 목록 조회
-  async getBookmarks(user_id: number): Promise<Bookmark[]> {
+  async getAllBookmark(userId: number): Promise<Bookmark[]> {
     return this.bookmarksRepository.find({
-      where: { user_id },
+      where: { userId },
     });
   }
 
   // 유저별 즐겨찾기 지역 조회
-  async getBookmarkLocation({
-    user_id,
-    location_id,
-  }: IBookmarksServiceGetBookmarkLocation): Promise<any> {
-    // 즐겨찾기 목록 조회
-    const bookmarkList = await this.getBookmarks(user_id);
+  async getBookmarkByKr({
+    userId,
+    locationKr,
+  }: IBookmarksServiceGetBookmarkByKr): Promise<any> {
+    // 1. 즐겨찾기 목록 조회
+    const bookmarkList = await this.getAllBookmark(userId);
 
-    // 즐겨찾기 지역 체크
-    const isLocation = await this.getLocationId({ bookmarkList, location_id });
-
+    // 2. 즐겨찾기 지역 체크
+    const isLocation = await this.getLocationByKr({ bookmarkList, locationKr });
     if (isLocation.length == 1) {
       return isLocation[0];
     } else {
@@ -41,60 +40,52 @@ export class BookmarksService {
   }
 
   // 즐겨찾기 지역 체크
-  async getLocationId({
+  async getLocationByKr({
     bookmarkList,
-    location_id,
-  }: IBookmarksServiceGetLocationId): Promise<Bookmark[]> {
+    locationKr,
+  }: IBookmarksServiceGetLocationByKr): Promise<Bookmark[]> {
     return bookmarkList.filter((item: any, key: number) => {
-      if (item.location_id == location_id) {
+      if (item.locationKr == locationKr) {
         return item;
       }
     });
   }
 
   // 즐겨찾기 추가 및 삭제
-  async editBookmark({
-    user_id,
-    location_id,
-    location_kr,
-    location_en,
-    image_number,
+  async updateBookmark({
+    userId,
+    createBookmarkDto,
   }: IBookmarksServiceCreate): Promise<any> {
-    // 유저별 즐겨찾기 지역 조회
-    const isLocation = await this.getBookmarkLocation({ user_id, location_id });
-
-    if (isLocation === 0) {
-      return this.createBookmark({
-        user_id,
-        location_id,
-        location_kr,
-        location_en,
-        image_number,
+    // 1. 즐겨찾기 지역 조회
+    const isBookmark = await this.getBookmarkByKr({
+      userId,
+      locationKr: createBookmarkDto.locationKr,
+    });
+    if (isBookmark == 0) {
+      return await this.createBookmark({
+        userId,
+        createBookmarkDto,
       });
     } else {
-      return this.deleteBookmark(isLocation.id);
+      return await this.deleteBookmark(isBookmark.id);
     }
   }
 
   // 즐겨찾기 추가
   async createBookmark({
-    user_id,
-    location_id,
-    location_kr,
-    location_en,
-    image_number,
+    userId,
+    createBookmarkDto,
   }: IBookmarksServiceCreate): Promise<Bookmark> {
     const saveBookmark = await this.bookmarksRepository.save({
-      user_id,
-      location_id,
-      location_kr,
-      location_en,
-      image_number,
+      userId,
+      locationKr: createBookmarkDto.locationKr,
+      locationEn: createBookmarkDto.locationEn,
+      imageNumber: createBookmarkDto.imageNumber,
     });
     return saveBookmark;
   }
 
-  // // 즐겨찾기 삭제
+  // 즐겨찾기 삭제
   async deleteBookmark(id: number): Promise<boolean> {
     const result = await this.bookmarksRepository.delete({ id });
     return result.affected ? true : false;

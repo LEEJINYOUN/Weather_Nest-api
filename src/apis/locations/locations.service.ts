@@ -1,16 +1,12 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Location } from './entities/location.entity';
 import { Repository } from 'typeorm';
+import { Location } from './entities/location.entity';
 import {
-  ILocationsServiceFindOneByLocation,
-  ILocationsServiceStore,
-} from './interfaces/locations-service.interface';
-import { CreateLocationInput } from './dto/create-location.input';
+  ILocationsServiceFindOneByCountry,
+  ILocationsServiceFindOneByKr,
+} from './interfaces/location-service.interface';
+import { CreateLocationDto } from './dto/create-location.dto';
 
 @Injectable()
 export class LocationsService {
@@ -20,68 +16,75 @@ export class LocationsService {
   ) {}
 
   // 모든 지역 조회
-  getLocations(): Promise<Location[]> {
-    return this.locationsRepository.find();
+  async getAllLocation(): Promise<Location[]> {
+    return this.locationsRepository.find({
+      order: { locationName: 'ASC' },
+    });
   }
 
-  // 지역명 체크 (한글)
-  findLocationKr({ location_kr }: ILocationsServiceFindOneByLocation) {
-    return this.locationsRepository.findOne({ where: { location_kr } });
+  // 나라별 지역 조회
+  async getAllLocationByCountry({
+    countryId,
+  }: ILocationsServiceFindOneByCountry): Promise<Location[]> {
+    // 1. 지역 목록 조회
+    const locationList = await this.locationsRepository.find({
+      where: { countryId },
+      order: { locationName: 'ASC' },
+    });
+
+    return locationList;
   }
 
-  // 지역명 체크 (영문)
-  findLocationEn({ location_en }: ILocationsServiceFindOneByLocation) {
-    return this.locationsRepository.findOne({ where: { location_en } });
+  //  지역 체크
+  async getLocationFindOneByKr({
+    locationList,
+    locationName,
+  }: ILocationsServiceFindOneByKr): Promise<Location[]> {
+    return locationList.filter((item: any, key: number) => {
+      if (item.locationName == locationName) {
+        return item;
+      }
+    });
   }
 
-  // 지역명 체크 (id)
-  findLocationId(id: number) {
+  // 지역 등록
+  async createLocation(
+    createLocationDto: CreateLocationDto,
+  ): Promise<Location> {
+    const isLocation = await this.locationsRepository.findOne({
+      where: { locationName: createLocationDto.locationName },
+    });
+
+    // 1. 일치하는 지역이 있는 경우
+    if (isLocation) throw new ConflictException('이미 등록된 지역입니다.');
+
+    // 2. 지역 등록 성공
+    return await this.locationsRepository.save({
+      countryId: createLocationDto.countryId,
+      locationName: createLocationDto.locationName,
+    });
+  }
+
+  // id로 지역 찾기
+  findLocationById(id: number) {
     return this.locationsRepository.findOne({
       where: { id },
     });
   }
 
-  // 지역 등록
-  async createLocation({
-    location_kr,
-    location_en,
-  }: ILocationsServiceStore): Promise<Location> {
-    // 등록된 지역명 체크
-    const isKr = await this.findLocationKr({ location_kr });
-    const isEn = await this.findLocationEn({ location_en });
-
-    // 일치하는 지역명이 있는 경우
-    if (isKr || isEn) throw new ConflictException('이미 등록된 지역입니다.');
-
-    // 지역 등록 성공
-    return await this.locationsRepository.save({
-      location_kr,
-      location_en,
-    });
-  }
-
-  // 특정 지역명 조회
-  getLocationById(id: number): Promise<Location> {
-    const isLocation = this.findLocationId(id);
-    if (!isLocation) {
-      throw new NotFoundException(`${id}번은 찾을 수 없습니다.`);
-    }
-    return isLocation;
-  }
-
-  // 특정 지역명 수정
+  // 특정 지역 수정
   async updateLocation(
     id: number,
-    createLocationInput: CreateLocationInput,
+    createLocationDto: CreateLocationDto,
   ): Promise<Location> {
-    const location = await this.findLocationId(id);
+    const location = await this.findLocationById(id);
 
-    Object.assign(location, createLocationInput);
+    Object.assign(location, createLocationDto);
 
     return await this.locationsRepository.save(location);
   }
 
-  // 특정 지역명 삭제
+  // 특정 지역 삭제
   async deleteLocation(id: number): Promise<boolean> {
     const result = await this.locationsRepository.delete({ id });
     return result.affected ? true : false;

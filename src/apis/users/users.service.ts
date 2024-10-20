@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -12,19 +13,29 @@ import * as bcrypt from 'bcrypt';
 import {
   IUserServiceGetAccessToken,
   IUserServiceLogin,
+  IUsersServiceCreateUser,
   IUsersServiceFindOneByEmail,
-  IUsersServiceRegister,
 } from './interfaces/users-service.interface';
-import { AddressService } from '../address/address.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    private readonly addressService: AddressService,
     private readonly jwtService: JwtService, //
   ) {}
+
+  // 모든 유저 조회
+  getAllUser(): Promise<User[]> {
+    return this.usersRepository.find();
+  }
+
+  // 특정 유저 조회
+  async getUserById(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException(`${id}번 유저는 존재하지 않습니다.`);
+    return user;
+  }
 
   // 이메일 체크
   checkEmail({ email }: IUsersServiceFindOneByEmail) {
@@ -36,18 +47,19 @@ export class UsersService {
     email,
     name,
     password,
-  }: IUsersServiceRegister): Promise<any> {
-    // 이메일 체크
+  }: IUsersServiceCreateUser): Promise<any> {
+    // 1. 이메일 체크
     const isEmail = await this.checkEmail({ email });
 
-    // 일치하는 이메일이 있는 경우
+    // 2. 일치하는 이메일이 있는 경우
     if (isEmail)
       throw new ConflictException({
         objectOrError: '이메일 오류',
         descriptionOrOptions:
           '이미 등록된 이메일입니다. 입력한 이메일을 확인하고 다시 시도하세요.',
       });
-    // 회원가입
+
+    // 3. 회원가입 하기
     const saveUser = await this.usersRepository.save({
       email,
       name,
@@ -56,12 +68,12 @@ export class UsersService {
 
     delete saveUser.password;
 
-    // 주소 생성
-    await this.addressService.createAddress({
-      saveUser,
-    });
-
     return saveUser;
+  }
+
+  // 토큰 발행
+  getAccessToken({ user }: IUserServiceGetAccessToken): string {
+    return this.jwtService.sign({ id: user.id });
   }
 
   // 로그인
@@ -98,29 +110,24 @@ export class UsersService {
     return loginData;
   }
 
-  // 토큰 발행
-  getAccessToken({ user }: IUserServiceGetAccessToken): string {
-    return this.jwtService.sign({ id: user.id });
-  }
-
-  // 토큰 정보 가져오기
+  // 유저 정보 가져오기
   async getUser(request: any): Promise<any> {
     try {
       const token = request.body.token;
 
-      // jwt 정보 가져오기
+      // 1. jwt 토큰 정보 가져오기
       const data = await this.jwtService.verifyAsync(token);
 
       if (!data) {
         throw new UnauthorizedException();
       }
 
-      // 유저 정보 찾기
+      // 2. 유저 정보 찾기
       const user = await this.usersRepository.findOne({
         where: { id: data.id },
       });
 
-      // 비밀번호를 제외한 정보 가져오기
+      // 3. 비밀번호를 제외한 정보 가져오기
       const { password, ...result } = user;
 
       return result;

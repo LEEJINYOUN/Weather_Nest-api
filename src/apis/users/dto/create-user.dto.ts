@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
 
-export class RegisterUserInput {
+export class CreateUserDto {
   @IsNotEmpty({ message: '이메일을 입력하세요' })
   @IsEmail()
   email: string;
@@ -19,7 +19,7 @@ export class RegisterUserInput {
   password?: string;
 }
 
-export class LoginUserInput {
+export class LoginUserDto {
   @IsNotEmpty({ message: '이메일을 입력하세요' })
   @IsEmail()
   email: string;

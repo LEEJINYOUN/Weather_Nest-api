@@ -2,15 +2,19 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './apis/users/users.module';
 import { ConfigModule } from '@nestjs/config';
-import { LocationsModule } from './apis/locations/locations.module';
 import { BookmarksModule } from './apis/bookmarks/bookmarks.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ClothesModule } from './apis/clothes/clothes.module';
+import { LocationsModule } from './apis/locations/locations.module';
+import { CountriesModule } from './apis/countries/countries.module';
 
 @Module({
   imports: [
     UsersModule, //
-    LocationsModule, //
     BookmarksModule, //
+    ClothesModule, //
+    CountriesModule, //
+    LocationsModule, //
     ConfigModule.forRoot(), // env
     TypeOrmModule.forRoot({
       type: 'mysql',

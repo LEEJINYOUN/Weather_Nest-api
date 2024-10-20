@@ -1,41 +1,39 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { BookmarksService } from './bookmarks.service';
-import { CreateBookmarkInput } from './dto/create-bookmark.input';
+import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { Bookmark } from './entities/bookmark.entity';
 
 @Controller('bookmark')
 export class BookmarksController {
   constructor(private readonly bookmarksService: BookmarksService) {}
 
-  // 유저별 즐겨찾기 목록 조회
-  @Get(':user_id')
-  getBookmarks(@Param('user_id') user_id: number): Promise<Bookmark[]> {
-    return this.bookmarksService.getBookmarks(user_id);
+  // 유저별 모든 즐겨찾기 조회
+  @Get('all/:userId')
+  getAllBookmark(@Param('userId') userId: number): Promise<Bookmark[]> {
+    return this.bookmarksService.getAllBookmark(userId);
   }
 
   // 유저별 즐겨찾기 지역 조회
-  @Get(':user_id/:location_id')
-  getBookmarkLocation(
-    @Param('user_id') user_id: number,
-    @Param('location_id') location_id: number,
+  @Get(':userId')
+  getBookmarkByKr(
+    @Param('userId') userId: number,
+    @Query('locationKr') locationKr: string,
   ): Promise<any> {
-    return this.bookmarksService.getBookmarkLocation({
-      user_id,
-      location_id,
+    return this.bookmarksService.getBookmarkByKr({
+      userId,
+      locationKr,
     });
   }
+
   // 즐겨찾기 추가 및 삭제
-  @Post(':user_id')
-  async editBookmark(
-    @Param('user_id') user_id: number,
-    @Body() createBookmarkInput: CreateBookmarkInput,
+  @Post('update/:userId')
+  async updateBookmark(
+    @Param('userId') userId: number,
+    @Body() createBookmarkDto: CreateBookmarkDto,
   ): Promise<string> {
-    return this.bookmarksService.editBookmark({
-      user_id,
-      location_id: createBookmarkInput.location_id,
-      location_kr: createBookmarkInput.location_kr,
-      location_en: createBookmarkInput.location_en,
-      image_number: createBookmarkInput.image_number,
+    return this.bookmarksService.updateBookmark({
+      userId,
+      createBookmarkDto,
     });
   }
 }

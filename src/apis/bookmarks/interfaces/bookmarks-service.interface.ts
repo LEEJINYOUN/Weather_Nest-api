@@ -1,19 +1,22 @@
 import { Bookmark } from '../entities/bookmark.entity';
 
+export interface IBookmarksServiceDto {
+  locationKr: string;
+  locationEn: string;
+  imageNumber: number;
+}
+
 export interface IBookmarksServiceCreate {
-  user_id: number;
-  location_id: number;
-  location_kr: string;
-  location_en: string;
-  image_number: number;
+  userId: number;
+  createBookmarkDto: IBookmarksServiceDto;
 }
 
-export interface IBookmarksServiceGetBookmarkLocation {
-  user_id: number;
-  location_id: number;
+export interface IBookmarksServiceGetBookmarkByKr {
+  userId: number;
+  locationKr: string;
 }
 
-export interface IBookmarksServiceGetLocationId {
+export interface IBookmarksServiceGetLocationByKr {
   bookmarkList: Bookmark[];
-  location_id: number;
+  locationKr: string;
 }
