@@ -19,9 +19,9 @@ export class TestBoardsService {
 
   // 게시물 생성
   async createBoard({
-    title,
-    description,
+    createTestBoardDto,
   }: ITestBoardsServiceDto): Promise<TestBoard> {
+    const { title, description } = createTestBoardDto;
     return await this.testBoardsRepository.save({
       title,
       description,
@@ -30,7 +30,7 @@ export class TestBoardsService {
   }
 
   // 특정 게시물 조회
-  async getBoardById(id: number) {
+  async getBoardById(id: number): Promise<TestBoard> {
     const found = await this.testBoardsRepository.findOne({ where: { id } });
 
     if (!found) {

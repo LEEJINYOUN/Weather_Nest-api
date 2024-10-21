@@ -8,5 +8,5 @@ export class CreateTestBoardDto {
   @IsNotEmpty()
   description: string;
 
-  status: TestBoardStatus.PUBLIC;
+  status: TestBoardStatus;
 }

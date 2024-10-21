@@ -1,4 +1,5 @@
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -8,7 +9,7 @@ import { TestBoardStatus } from './common/enums';
 
 // 테이블 설정
 @Entity('test-boards')
-export class TestBoard {
+export class TestBoard extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 

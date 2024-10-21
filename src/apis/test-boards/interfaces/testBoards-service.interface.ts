@@ -1,8 +1,8 @@
+import { CreateTestBoardDto } from '../dto/create-test-board.dto';
 import { TestBoardStatus } from '../entities/common/enums';
 
 export interface ITestBoardsServiceDto {
-  title: string;
-  description: string;
+  createTestBoardDto: CreateTestBoardDto;
 }
 
 export interface ITestBoardsServiceUpdate {

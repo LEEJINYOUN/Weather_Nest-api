@@ -31,13 +31,10 @@ export class TestBoardsController {
   // UsePipes -> 파이프 사용
   // ValidationPipe -> 유효성 체크
   @UsePipes(ValidationPipe)
-  async createBoard(
+  createBoard(
     @Body() createTestBoardDto: CreateTestBoardDto,
   ): Promise<TestBoard> {
-    return await this.testBoardsService.createBoard({
-      title: createTestBoardDto.title,
-      description: createTestBoardDto.description,
-    });
+    return this.testBoardsService.createBoard({ createTestBoardDto });
   }
 
   // 특정 게시물 조회
@@ -49,7 +46,7 @@ export class TestBoardsController {
 
   // 특정 게시물 삭제
   @Delete(':id')
-  async deleteBoard(@Param('id') id: number): Promise<any> {
+  async deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<any> {
     return await this.testBoardsService.deleteBoard(id);
   }
 
@@ -57,7 +54,7 @@ export class TestBoardsController {
   @Patch(':id/status')
   // TestBoardStatusValidationPipe -> 커스텀 파이프
   async updateBoardStatus(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body('status', TestBoardStatusValidationPipe) status: TestBoardStatus,
   ): Promise<TestBoard> {
     return this.testBoardsService.updateBoardStatus(id, status);
