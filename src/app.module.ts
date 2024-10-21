@@ -7,9 +7,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { ClothesModule } from './apis/clothes/clothes.module';
 import { LocationsModule } from './apis/locations/locations.module';
 import { CountriesModule } from './apis/countries/countries.module';
+import { TestBoardsModule } from './apis/test-boards/test-boards.module';
 
 @Module({
   imports: [
+    // 테스트 start
+    TestBoardsModule, //
+
+    // 테스트 end
     UsersModule, //
     BookmarksModule, //
     ClothesModule, //
