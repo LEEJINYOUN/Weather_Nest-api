@@ -8,6 +8,7 @@ import { ClothesModule } from './apis/clothes/clothes.module';
 import { LocationsModule } from './apis/locations/locations.module';
 import { CountriesModule } from './apis/countries/countries.module';
 import { TestBoardsModule } from './apis/test-boards/test-boards.module';
+import { TestAuthModule } from './apis/test-auth/test-auth.module';
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import { TestBoardsModule } from './apis/test-boards/test-boards.module';
       }),
       global: true,
       inject: [],
-    }), // jwt 설정
+    }),
+    TestAuthModule, // jwt 설정
   ],
 })
 export class AppModule {}
