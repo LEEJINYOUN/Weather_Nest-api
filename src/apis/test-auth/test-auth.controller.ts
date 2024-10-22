@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UseGuards,
   ValidationPipe,
@@ -15,6 +17,11 @@ import { TestAuth } from './entities/test-auth.entity';
 export class TestAuthController {
   constructor(private readonly testAuthService: TestAuthService) {}
 
+  // 특정 유저 조회
+  @Get(':id')
+  getUserById(@Param('id') id: number): Promise<TestAuth> {
+    return this.testAuthService.getUserById(id);
+  }
   // 회원가입
   @Post('register')
   async register(

@@ -1,10 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { TestAuthRegisterDto } from './dto/create-test-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { TestAuthRepository } from './test-auth.repository';
+import { TestAuth } from './entities/test-auth.entity';
 
 @Injectable()
 export class TestAuthService {
@@ -13,6 +18,11 @@ export class TestAuthService {
     private readonly testAuthRepository: TestAuthRepository,
     private readonly jwtService: JwtService, //
   ) {}
+
+  // 특정 유저 조회
+  async getUserById(id: number): Promise<TestAuth> {
+    return this.testAuthRepository.getUserById(id);
+  }
 
   // 회원가입
   async register(testAuthRegisterDto: TestAuthRegisterDto): Promise<void> {
