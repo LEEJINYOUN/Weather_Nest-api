@@ -17,6 +17,8 @@ import { CreateTestBoardDto } from './dto/create-test-board.dto';
 import { TestBoardStatus } from './entities/common/enums';
 import { TestBoardStatusValidationPipe } from './pipes/test-board-status-validation.pipe';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from '../test-auth/get-user.decorator';
+import { TestAuth } from '../test-auth/entities/test-auth.entity';
 
 @Controller('testBoards')
 @UseGuards(AuthGuard())
@@ -25,8 +27,8 @@ export class TestBoardsController {
 
   // 모든 게시물 조회
   @Get('/')
-  getAllBoard(): Promise<TestBoard[]> {
-    return this.testBoardsService.getAllBoards();
+  getAllBoard(@GetUser() user: TestAuth): Promise<TestBoard[]> {
+    return this.testBoardsService.getAllBoards(user);
   }
 
   // 게시물 생성
@@ -36,8 +38,9 @@ export class TestBoardsController {
   @UsePipes(ValidationPipe)
   createBoard(
     @Body() createTestBoardDto: CreateTestBoardDto,
+    @GetUser() user: TestAuth,
   ): Promise<TestBoard> {
-    return this.testBoardsService.createBoard({ createTestBoardDto });
+    return this.testBoardsService.createBoard({ createTestBoardDto, user });
   }
 
   // 특정 게시물 조회

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { TestBoard } from './entities/test-board.entity';
 import { TestBoardStatus } from './entities/common/enums';
 import { ITestBoardsServiceDto } from './interfaces/testBoards-service.interface';
+import { TestAuth } from '../test-auth/entities/test-auth.entity';
 
 @Injectable()
 export class TestBoardsService {
@@ -13,19 +14,27 @@ export class TestBoardsService {
   ) {}
 
   // 모든 게시물 조회
-  getAllBoards(): Promise<TestBoard[]> {
-    return this.testBoardsRepository.find();
+  async getAllBoards(user: TestAuth): Promise<TestBoard[]> {
+    // const query = this.testBoardsRepository.createQueryBuilder('testBoard');
+    // query.where('testBoard.userId = :userId', { userId: user.id });
+
+    // const boards = await query.getMany();
+    return this.testBoardsRepository.find({ relations: ['testAuth'] });
+    // return boards;
   }
 
   // 게시물 생성
   async createBoard({
     createTestBoardDto,
-  }: ITestBoardsServiceDto): Promise<TestBoard> {
+    user,
+  }: ITestBoardsServiceDto): Promise<any> {
     const { title, description } = createTestBoardDto;
+    // return user.id;
     return await this.testBoardsRepository.save({
       title,
       description,
       status: TestBoardStatus.PUBLIC,
+      user,
     });
   }
 
