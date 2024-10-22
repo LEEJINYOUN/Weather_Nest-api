@@ -12,10 +12,6 @@ import { TestAuthModule } from './apis/test-auth/test-auth.module';
 
 @Module({
   imports: [
-    // 테스트 start
-    TestBoardsModule, //
-
-    // 테스트 end
     UsersModule, //
     BookmarksModule, //
     ClothesModule, //
@@ -33,6 +29,7 @@ import { TestAuthModule } from './apis/test-auth/test-auth.module';
       synchronize: true, // entity 동기화
       logging: true, // debug 하고 싶을 때
     }),
+    // PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [],
       useFactory: async () => ({
@@ -43,8 +40,13 @@ import { TestAuthModule } from './apis/test-auth/test-auth.module';
       }),
       global: true,
       inject: [],
-    }),
-    TestAuthModule, // jwt 설정
+    }), // jwt 설정
+
+    // 테스트 start
+    TestBoardsModule, //
+    TestAuthModule, //
+
+    // 테스트 end
   ],
 })
 export class AppModule {}
