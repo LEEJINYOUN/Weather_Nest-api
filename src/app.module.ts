@@ -29,7 +29,6 @@ import { TestAuthModule } from './apis/test-auth/test-auth.module';
       synchronize: true, // entity 동기화
       logging: true, // debug 하고 싶을 때
     }),
-    // PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [],
       useFactory: async () => ({

@@ -9,6 +9,8 @@ import {
 import { TestAuthService } from './test-auth.service';
 import { TestAuthRegisterDto } from './dto/create-test-auth.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from './get-user.decorator';
+import { TestAuth } from './entities/test-auth.entity';
 
 @Controller('testAuth')
 export class TestAuthController {
@@ -33,7 +35,7 @@ export class TestAuthController {
   // 로그인 테스트
   @Post('authTest')
   @UseGuards(AuthGuard()) // 인증 미들웨어
-  authTest(@Req() req) {
-    console.log(req);
+  authTest(@GetUser() user: TestAuth) {
+    console.log(user);
   }
 }
