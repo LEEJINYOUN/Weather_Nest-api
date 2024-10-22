@@ -4,6 +4,7 @@ import { TestBoardsService } from './test-boards.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TestBoard } from './entities/test-board.entity';
 import { TestAuthModule } from '../test-auth/test-auth.module';
+import { TestBoardRepository } from './test-board.repository';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { TestAuthModule } from '../test-auth/test-auth.module';
     TestAuthModule, //
   ],
   controllers: [TestBoardsController],
-  providers: [TestBoardsService],
+  providers: [TestBoardsService, TestBoardRepository],
 })
 export class TestBoardsModule {}

@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TestAuth } from './entities/test-auth.entity';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { TestAuthRepository } from './test-auth.repository';
 
 @Module({
   imports: [
@@ -14,7 +15,11 @@ import { PassportModule } from '@nestjs/passport';
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [TestAuthController],
-  providers: [TestAuthService, JwtStrategy],
+  providers: [
+    TestAuthService, //
+    TestAuthRepository, //
+    JwtStrategy,
+  ],
   exports: [JwtStrategy, PassportModule],
 })
 export class TestAuthModule {}

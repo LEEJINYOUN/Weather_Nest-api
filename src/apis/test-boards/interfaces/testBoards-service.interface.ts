@@ -4,7 +4,6 @@ import { TestBoardStatus } from '../entities/common/enums';
 
 export interface ITestBoardsServiceDto {
   createTestBoardDto: CreateTestBoardDto;
-  user: TestAuth;
 }
 
 export interface ITestBoardsServiceUpdate {

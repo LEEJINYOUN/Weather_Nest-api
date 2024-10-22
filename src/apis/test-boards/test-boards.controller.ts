@@ -23,12 +23,12 @@ import { TestAuth } from '../test-auth/entities/test-auth.entity';
 @Controller('testBoards')
 @UseGuards(AuthGuard())
 export class TestBoardsController {
-  constructor(private readonly testBoardsService: TestBoardsService) {}
+  constructor(private testBoardsService: TestBoardsService) {}
 
   // 모든 게시물 조회
   @Get('/')
-  getAllBoard(@GetUser() user: TestAuth): Promise<TestBoard[]> {
-    return this.testBoardsService.getAllBoards(user);
+  getAllBoard(): Promise<any> {
+    return this.testBoardsService.getAllBoards();
   }
 
   // 게시물 생성
@@ -38,9 +38,9 @@ export class TestBoardsController {
   @UsePipes(ValidationPipe)
   createBoard(
     @Body() createTestBoardDto: CreateTestBoardDto,
-    @GetUser() user: TestAuth,
+    @GetUser() testAuth: TestAuth,
   ): Promise<TestBoard> {
-    return this.testBoardsService.createBoard({ createTestBoardDto, user });
+    return this.testBoardsService.createBoard(createTestBoardDto, testAuth);
   }
 
   // 특정 게시물 조회
@@ -52,8 +52,11 @@ export class TestBoardsController {
 
   // 특정 게시물 삭제
   @Delete(':id')
-  async deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<any> {
-    return await this.testBoardsService.deleteBoard(id);
+  async deleteBoard(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() testAuth: TestAuth,
+  ): Promise<any> {
+    return await this.testBoardsService.deleteBoard(id, testAuth);
   }
 
   // 특정 게시물 상태 업데이트

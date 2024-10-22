@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Post,
-  Req,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -20,7 +19,7 @@ export class TestAuthController {
   @Post('register')
   async register(
     @Body(ValidationPipe) testAuthRegisterDto: TestAuthRegisterDto,
-  ): Promise<any> {
+  ): Promise<void> {
     return this.testAuthService.register(testAuthRegisterDto);
   }
 

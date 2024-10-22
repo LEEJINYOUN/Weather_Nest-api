@@ -3,39 +3,28 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TestBoard } from './entities/test-board.entity';
 import { TestBoardStatus } from './entities/common/enums';
-import { ITestBoardsServiceDto } from './interfaces/testBoards-service.interface';
 import { TestAuth } from '../test-auth/entities/test-auth.entity';
+import { TestBoardRepository } from './test-board.repository';
+import { CreateTestBoardDto } from './dto/create-test-board.dto';
 
 @Injectable()
 export class TestBoardsService {
   constructor(
-    @InjectRepository(TestBoard)
-    private readonly testBoardsRepository: Repository<TestBoard>,
+    @InjectRepository(TestBoardRepository)
+    private testBoardsRepository: TestBoardRepository,
   ) {}
 
   // 모든 게시물 조회
-  async getAllBoards(user: TestAuth): Promise<TestBoard[]> {
-    // const query = this.testBoardsRepository.createQueryBuilder('testBoard');
-    // query.where('testBoard.userId = :userId', { userId: user.id });
-
-    // const boards = await query.getMany();
-    return this.testBoardsRepository.find({ relations: ['testAuth'] });
-    // return boards;
+  async getAllBoards(): Promise<any> {
+    return this.testBoardsRepository.find();
   }
 
   // 게시물 생성
-  async createBoard({
-    createTestBoardDto,
-    user,
-  }: ITestBoardsServiceDto): Promise<any> {
-    const { title, description } = createTestBoardDto;
-    // return user.id;
-    return await this.testBoardsRepository.save({
-      title,
-      description,
-      status: TestBoardStatus.PUBLIC,
-      user,
-    });
+  createBoard(
+    createTestBoardDto: CreateTestBoardDto,
+    testAuth: TestAuth,
+  ): Promise<TestBoard> {
+    return this.testBoardsRepository.createBoard(createTestBoardDto, testAuth);
   }
 
   // 특정 게시물 조회
@@ -49,8 +38,13 @@ export class TestBoardsService {
   }
 
   // 특정 게시물 삭제
-  deleteBoard(id: number): Promise<any> {
-    return this.testBoardsRepository.delete({ id });
+  async deleteBoard(id: number, testAuth: TestAuth): Promise<any> {
+    const result = await this.testBoardsRepository.delete({ id, testAuth });
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`${id}번 게시물을 찾을 수 없습니다.`);
+    }
+    return;
   }
 
   // 특정 게시물 상태 업데이트

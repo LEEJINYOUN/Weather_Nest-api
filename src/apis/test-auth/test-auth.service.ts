@@ -1,42 +1,22 @@
-import {
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TestAuth } from './entities/test-auth.entity';
-import { Repository } from 'typeorm';
+
 import { TestAuthRegisterDto } from './dto/create-test-auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { TestAuthRepository } from './test-auth.repository';
 
 @Injectable()
 export class TestAuthService {
   constructor(
-    @InjectRepository(TestAuth)
-    private readonly testAuthRepository: Repository<TestAuth>,
+    @InjectRepository(TestAuthRepository)
+    private readonly testAuthRepository: TestAuthRepository,
     private readonly jwtService: JwtService, //
   ) {}
 
   // 회원가입
-  async register(testAuthRegisterDto: TestAuthRegisterDto): Promise<any> {
-    try {
-      const { username, password } = testAuthRegisterDto;
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await this.testAuthRepository.save({
-        username,
-        password: hashedPassword,
-      });
-
-      return user;
-    } catch (e) {
-      if ((e.code = '23505')) {
-        throw new ConflictException('유저이름이 존재합니다.');
-      } else {
-        throw new InternalServerErrorException();
-      }
-    }
+  async register(testAuthRegisterDto: TestAuthRegisterDto): Promise<void> {
+    return this.testAuthRepository.createUser(testAuthRegisterDto);
   }
 
   // 로그인
