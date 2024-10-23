@@ -12,10 +12,10 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import {
   IUserServiceGetAccessToken,
+  IUserServiceLogin,
+  IUsersServiceCreateUser,
   IUsersServiceFindOneByEmail,
-  IUsersServiceLogin,
 } from './interfaces/users-service.interface';
-import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -43,10 +43,15 @@ export class UsersService {
   }
 
   // 회원가입
-  async register(createUserDto: CreateUserDto): Promise<any> {
-    const { email, name, password } = createUserDto;
+  async register({
+    email,
+    name,
+    password,
+  }: IUsersServiceCreateUser): Promise<any> {
     // 1. 이메일 체크
     const isEmail = await this.checkEmail({ email });
+
+    // 2. 일치하는 이메일이 있는 경우
     if (isEmail)
       throw new ConflictException({
         objectOrError: '이메일 오류',
@@ -54,15 +59,15 @@ export class UsersService {
           '이미 등록된 이메일입니다. 입력한 이메일을 확인하고 다시 시도하세요.',
       });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // 3. 회원가입 하기
     const saveUser = await this.usersRepository.save({
       email,
       name,
-      password: hashedPassword,
+      password,
     });
 
     delete saveUser.password;
+
     return saveUser;
   }
 
@@ -72,12 +77,11 @@ export class UsersService {
   }
 
   // 로그인
-  async login(loginUserInput: IUsersServiceLogin, response: any): Promise<any> {
-    const { email, password } = loginUserInput;
-
+  async login({ email, password, response }: IUserServiceLogin): Promise<any> {
     // 1. 이메일 체크
-    const user = await this.usersRepository.findOne({ where: { email } });
+    const user = await this.checkEmail({ email });
 
+    // 2. 일치하는 유저 X
     if (!user)
       throw new UnprocessableEntityException({
         objectOrError: '이메일 오류',

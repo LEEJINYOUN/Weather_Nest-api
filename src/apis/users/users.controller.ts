@@ -24,7 +24,12 @@ export class UsersController {
   // 회원가입
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.register(createUserDto);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    return this.usersService.register({
+      email: createUserDto.email,
+      name: createUserDto.name,
+      password: hashedPassword,
+    });
   }
 
   // 로그인
@@ -33,7 +38,11 @@ export class UsersController {
     @Body() loginUserInput: LoginUserDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
-    return this.usersService.login(loginUserInput, response);
+    return this.usersService.login({
+      email: loginUserInput.email,
+      password: loginUserInput.password,
+      response,
+    });
   }
 
   // 유저 정보 가져오기
