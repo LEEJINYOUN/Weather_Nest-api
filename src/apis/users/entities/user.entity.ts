@@ -1,9 +1,7 @@
-import { Bookmark } from 'src/apis/bookmarks/entities/bookmark.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -21,11 +19,6 @@ export class User {
 
   @Column()
   password: string;
-
-  @OneToMany((type) => Bookmark, (bookmark) => bookmark.user, {
-    eager: true,
-  })
-  bookmarks: Bookmark[];
 
   @CreateDateColumn()
   created_at: Date;
