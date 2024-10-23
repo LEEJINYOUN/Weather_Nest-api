@@ -1,7 +1,9 @@
+import { Country } from 'src/apis/countries/entities/country.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -11,11 +13,13 @@ export class Location {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column()
-  countryId: number;
-
   @Column({ unique: true })
   locationName: string;
+
+  @ManyToOne(() => Country, (countries) => countries.locations, {
+    eager: false,
+  })
+  countries: Country;
 
   @CreateDateColumn()
   created_at: Date;

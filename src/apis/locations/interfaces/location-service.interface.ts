@@ -1,6 +1,6 @@
-export interface ILocationsServiceFindOneByCountry {
-  countryId: number;
-}
+// export interface ILocationsServiceFindOneByCountry {
+//   countryId: number;
+// }
 
 export interface ILocationsServiceFindOneByLocation {
   locationName: string;

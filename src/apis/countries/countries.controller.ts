@@ -23,31 +23,31 @@ export class CountriesController {
   }
 
   // 특정 나라 조회
-  @Get()
-  getCountryByName(@Query('name') name: string): Promise<any> {
-    return this.countriesService.getCountryByName(name);
+  @Get(':id')
+  getCountryById(@Param('id') id: number): Promise<any> {
+    return this.countriesService.getCountryById(id);
   }
 
-  // 나라 등록
-  @Post('create')
-  async createCountry(
-    @Body() createCountryDto: CreateCountryDto,
-  ): Promise<Country> {
-    return await this.countriesService.createCountry(createCountryDto);
-  }
+  // // 나라 등록
+  // @Post('create')
+  // async createCountry(
+  //   @Body() createCountryDto: CreateCountryDto,
+  // ): Promise<Country> {
+  //   return await this.countriesService.createCountry(createCountryDto);
+  // }
 
-  // 특정 나라 수정
-  @Put(':id')
-  async updateCountry(
-    @Param('id') id: number,
-    @Body() createCountryDto: CreateCountryDto,
-  ): Promise<Country> {
-    return await this.countriesService.updateCountry(id, createCountryDto);
-  }
+  // // 특정 나라 수정
+  // @Put(':id')
+  // async updateCountry(
+  //   @Param('id') id: number,
+  //   @Body() createCountryDto: CreateCountryDto,
+  // ): Promise<Country> {
+  //   return await this.countriesService.updateCountry(id, createCountryDto);
+  // }
 
-  // 특정 나라 삭제
-  @Delete(':id')
-  async deleteCountry(@Param('id') id: number): Promise<boolean> {
-    return await this.countriesService.deleteCountry(id);
-  }
+  // // 특정 나라 삭제
+  // @Delete(':id')
+  // async deleteCountry(@Param('id') id: number): Promise<boolean> {
+  //   return await this.countriesService.deleteCountry(id);
+  // }
 }
