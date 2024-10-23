@@ -1,7 +1,9 @@
+import { User } from 'src/apis/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -11,8 +13,10 @@ export class Bookmark {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column()
-  userId: number;
+  @ManyToOne(() => User, (user) => user.bookmarks, {
+    eager: false,
+  })
+  user: User;
 
   @Column()
   locationKr: string;
