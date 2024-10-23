@@ -37,13 +37,13 @@ export class UsersController {
 
   // 유저 정보 가져오기
   @Post('getUser')
-  async getUser(@Req() request: Request) {
+  async getUser(@Req() request: Request): Promise<any> {
     return this.usersService.getUser(request);
   }
 
   // 로그아웃
   @Post('logout')
-  logout(@Res() response: Response) {
+  logout(@Res() response: Response): Promise<any> {
     return this.usersService.logout(response);
   }
 }

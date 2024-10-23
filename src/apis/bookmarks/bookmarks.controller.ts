@@ -1,11 +1,9 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { BookmarksService } from './bookmarks.service';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { Bookmark } from './entities/bookmark.entity';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('bookmark')
-@UseGuards(AuthGuard())
 export class BookmarksController {
   constructor(private readonly bookmarksService: BookmarksService) {}
 
@@ -20,7 +18,7 @@ export class BookmarksController {
   async editBookmark(
     @Param('userId') userId: number,
     @Body() createBookmarkDto: CreateBookmarkDto,
-  ): Promise<string> {
+  ): Promise<any> {
     return this.bookmarksService.editBookmark(userId, createBookmarkDto);
   }
 }
