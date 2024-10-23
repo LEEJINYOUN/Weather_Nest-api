@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  Post,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Country } from './entities/country.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -23,8 +18,10 @@ export class CountriesService {
 
   // 특정 나라 조회
   async getCountryById(id: number): Promise<Country> {
+    // 1. 쿼리 설정
     const query = this.countriesRepository.createQueryBuilder('country');
 
+    // 2. 쿼리로 조회
     query.where('Country.id =:id', { id });
 
     const country = await query.getOne();
@@ -32,43 +29,45 @@ export class CountriesService {
     return country;
   }
 
-  // // 나라 등록
-  // async createCountry(createCountryDto: CreateCountryDto): Promise<Country> {
-  //   const isCountry = await this.countriesRepository.findOne({
-  //     where: { name: createCountryDto.name },
-  //   });
+  // 나라 등록
+  async createCountry(createCountryDto: CreateCountryDto): Promise<Country> {
+    const { name } = createCountryDto;
 
-  //   // 1. 일치하는 나라가 있는 경우
-  //   if (isCountry) throw new ConflictException('이미 등록된 나라입니다.');
+    // 1. 나라 조회
+    const isCountry = await this.countriesRepository.findOne({
+      where: { name },
+    });
 
-  //   // 2. 나라 등록 성공
-  //   return await this.countriesRepository.save({
-  //     name: createCountryDto.name,
-  //   });
-  // }
+    // 2. 일치하는 나라가 있는 경우
+    if (isCountry) throw new ConflictException('이미 등록된 나라입니다.');
 
-  // // id로 나라 찾기
-  // findCountryById(id: number) {
-  //   return this.countriesRepository.findOne({
-  //     where: { id },
-  //   });
-  // }
+    // 3. 나라 등록 성공
+    return await this.countriesRepository.save({
+      name,
+    });
+  }
 
-  // //특정 나라 수정
-  // async updateCountry(
-  //   id: number,
-  //   createCountryDto: CreateCountryDto,
-  // ): Promise<Country> {
-  //   const clothes = await this.findCountryById(id);
+  // 특정 나라 수정
+  async updateCountry(
+    id: number,
+    createCountryDto: CreateCountryDto,
+  ): Promise<any> {
+    const { name } = createCountryDto;
 
-  //   Object.assign(clothes, createCountryDto);
+    // 1. id로 특정 나라 조회
+    const findCountryById = await this.countriesRepository.findOne({
+      where: { id },
+    });
 
-  //   return await this.countriesRepository.save(clothes);
-  // }
+    // 2. 변경사항 적용
+    Object.assign(findCountryById, { name });
 
-  // // 특정 나라 삭제
-  // async deleteCountry(id: number): Promise<boolean> {
-  //   const result = await this.countriesRepository.delete({ id });
-  //   return result.affected ? true : false;
-  // }
+    return await this.countriesRepository.save(findCountryById);
+  }
+
+  // 특정 나라 삭제
+  async deleteCountry(id: number): Promise<boolean> {
+    const result = await this.countriesRepository.delete({ id });
+    return result.affected ? true : false;
+  }
 }
