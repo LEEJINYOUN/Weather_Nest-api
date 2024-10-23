@@ -11,14 +11,10 @@ import {
 import { LocationsService } from './locations.service';
 import { Location } from './entities/location.entity';
 import { CreateLocationDto } from './dto/create-location.dto';
-import { CountriesService } from '../countries/countries.service';
 
 @Controller('location')
 export class LocationsController {
-  constructor(
-    private readonly locationsService: LocationsService,
-    private readonly countriesService: CountriesService,
-  ) {}
+  constructor(private readonly locationsService: LocationsService) {}
 
   // // 모든 지역 조회
   // @Get('all')
@@ -28,17 +24,23 @@ export class LocationsController {
 
   // 나라별 지역 조회
   @Get(':countryId')
-  getAllLocationByCountry(@Param('countryId') countryId: number): Promise<any> {
+  getAllLocationByCountry(
+    @Param('countryId') countryId: number,
+  ): Promise<Location[]> {
     return this.locationsService.getAllLocationByCountry(countryId);
   }
 
-  // // 지역 등록
-  // @Post('create')
-  // async createLocation(
-  //   @Body() createLocationDto: CreateLocationDto,
-  // ): Promise<Location> {
-  //   return await this.locationsService.createLocation(createLocationDto);
-  // }
+  // 지역 등록
+  @Post('create/:countryId')
+  async createLocation(
+    @Param('countryId') countryId: number,
+    @Body() createLocationDto: CreateLocationDto,
+  ): Promise<Location> {
+    return await this.locationsService.createLocation(
+      countryId,
+      createLocationDto,
+    );
+  }
 
   // // 특정 지역 수정
   // @Put(':id')
@@ -49,9 +51,9 @@ export class LocationsController {
   //   return await this.locationsService.updateLocation(id, createLocationDto);
   // }
 
-  // // 특정 지역 삭제
-  // @Delete(':id')
-  // async deleteLocation(@Param('id') id: number): Promise<boolean> {
-  //   return await this.locationsService.deleteLocation(id);
-  // }
+  // 특정 지역 삭제
+  @Delete(':id')
+  async deleteLocation(@Param('id') id: number): Promise<boolean> {
+    return await this.locationsService.deleteLocation(id);
+  }
 }
