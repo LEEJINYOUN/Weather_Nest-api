@@ -33,8 +33,16 @@ export class UsersService {
 
   // 특정 유저 조회
   async getUserById(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) throw new NotFoundException(`${id}번 유저는 존재하지 않습니다.`);
+    // 1. 쿼리 설정
+    const query = this.usersRepository.createQueryBuilder('user');
+
+    // 2. 쿼리로 조회
+    query.where('user.id =:id', { id });
+
+    const user = await query.getOne();
+
+    delete user.password;
+
     return user;
   }
 
