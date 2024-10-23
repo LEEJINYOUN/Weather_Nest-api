@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 import { UsersService } from './users.service';
-import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserDto, LoginUserDto } from './dto/create-user.dto';
 import { Request, Response } from 'express';

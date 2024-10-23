@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -10,12 +9,6 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import {
-  IUserServiceGetAccessToken,
-  IUserServiceLogin,
-  IUsersServiceCreateUser,
-  IUsersServiceFindOneByEmail,
-} from './interfaces/users-service.interface';
 import { CreateUserDto, LoginUserDto } from './dto/create-user.dto';
 
 @Injectable()
@@ -69,7 +62,7 @@ export class UsersService {
     // 3. 비밀번호 암호화
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4. 회원가입 하기
+    // 4. 회원가입
     const saveUser = await this.usersRepository.save({
       email,
       name,
@@ -106,10 +99,10 @@ export class UsersService {
       });
 
     // 4. 일치하는 유저 O, 비밀번호 O
-    // 4.1 토큰 발행
+    // 토큰 발행
     const jwt = this.jwtService.sign({ id: user.id });
 
-    // 4.2 쿠키에 저장
+    // 쿠키에 저장
     response.cookie('jwt', jwt, { httpOnly: true });
 
     const loginData = {
@@ -148,18 +141,14 @@ export class UsersService {
 
   // 로그아웃
   logout(response: any): Promise<any> {
-    try {
-      // 1. 쿠키 삭제
-      response.cookie('jwt', '', {
-        maxAge: 0,
-      });
+    // 1. 쿠키 삭제
+    response.cookie('jwt', '', {
+      maxAge: 0,
+    });
 
-      return response.send({
-        message: '로그아웃 성공',
-        statusCode: 201,
-      });
-    } catch (e) {
-      throw new UnauthorizedException();
-    }
+    return response.send({
+      message: '로그아웃 성공',
+      statusCode: 201,
+    });
   }
 }
