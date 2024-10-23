@@ -22,7 +22,7 @@ export class CountriesService {
     const query = this.countriesRepository.createQueryBuilder('country');
 
     // 2. 쿼리로 조회
-    query.where('Country.id =:id', { id });
+    query.where('country.id =:id', { id });
 
     const country = await query.getOne();
 

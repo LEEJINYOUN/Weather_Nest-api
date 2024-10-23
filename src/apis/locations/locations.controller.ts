@@ -26,15 +26,11 @@ export class LocationsController {
   //   return this.locationsService.getAllLocation();
   // }
 
-  // // 나라별 지역 조회
-  // @Get(':countryId')
-  // getAllLocationByCountry(
-  //   @Param('countryId') countryId: number,
-  // ): Promise<Location[]> {
-  //   return this.locationsService.getAllLocationByCountry({
-  //     countryId,
-  //   });
-  // }
+  // 나라별 지역 조회
+  @Get(':countryId')
+  getAllLocationByCountry(@Param('countryId') countryId: number): Promise<any> {
+    return this.locationsService.getAllLocationByCountry(countryId);
+  }
 
   // // 지역 등록
   // @Post('create')

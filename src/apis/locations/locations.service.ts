@@ -19,18 +19,18 @@ export class LocationsService {
   //   });
   // }
 
-  // // 나라별 지역 조회
-  // async getAllLocationByCountry({
-  //   countryId,
-  // }: ILocationsServiceFindOneByCountry): Promise<Location[]> {
-  //   // 1. 지역 목록 조회
-  //   const locationList = await this.locationsRepository.find({
-  //     where: { countryId },
-  //     order: { locationName: 'ASC' },
-  //   });
+  // 나라별 지역 조회
+  async getAllLocationByCountry(countryId: number): Promise<any> {
+    // 1. 쿼리 설정
+    const query = this.locationsRepository.createQueryBuilder('location');
 
-  //   return locationList;
-  // }
+    // 2. 쿼리로 조회
+    query.where('location.countriesId =:countryId', { countryId });
+
+    const location = await query.getMany();
+
+    return location;
+  }
 
   // //  지역 체크
   // async getLocationFindOneByKr({
