@@ -1,32 +1,35 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { User } from './entities/user.entity';
+import { Payload } from './jwt.payload';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-  ) {
+  constructor() {
     super({
-      secretOrKey: process.env.JWT_SECRET,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.JWT_SECRET,
+      ignoreExpiration: true,
     });
   }
 
-  async validate(payload) {
-    const { email } = payload;
-    const user: User = await this.userRepository.findOne({
-      where: { email },
-    });
+  async validate(payload: Payload & { exp: number }) {
+    const { id, email, exp } = payload;
 
-    if (!user) {
-      throw new UnauthorizedException();
+    // 만료기간
+    const expire = exp * 1000;
+
+    if (id && email) {
+      // 1. 토큰이 유효할 경우
+      if (Date.now() < expire) {
+        return { id, email };
+      }
+
+      // 2. payload에 정보는 잘 있으나 토큰 만료
+      throw new HttpException('토큰 만료', HttpStatus.UNAUTHORIZED);
+    } else {
+      // 3. payload에 정보가 없음
+      throw new HttpException('접근 오류', HttpStatus.FORBIDDEN);
     }
-
-    return user;
   }
 }

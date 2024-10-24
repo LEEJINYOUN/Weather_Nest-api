@@ -8,10 +8,10 @@ import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt', session: false }),
     TypeOrmModule.forFeature([
       User, //
     ]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [UsersController],
   providers: [UsersService, JwtStrategy],

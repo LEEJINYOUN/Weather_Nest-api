@@ -1,8 +1,18 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { CreateUserDto, LoginUserDto } from './dto/create-user.dto';
 import { Request, Response } from 'express';
+import { JwtAuthGuard } from './jwt.guard';
 
 @Controller('auth')
 export class UsersController {
@@ -37,6 +47,7 @@ export class UsersController {
 
   // 유저 정보 가져오기
   @Post('getUser')
+  @UseGuards(JwtAuthGuard)
   async getUser(@Req() request: Request): Promise<any> {
     return this.usersService.getUser(request);
   }

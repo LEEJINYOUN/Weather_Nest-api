@@ -31,9 +31,6 @@ import { CountriesModule } from './apis/countries/countries.module';
       imports: [],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: {
-          expiresIn: process.env.JWT_EXPIRATION_TIME,
-        },
       }),
       global: true,
       inject: [],

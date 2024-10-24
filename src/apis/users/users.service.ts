@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto, LoginUserDto } from './dto/create-user.dto';
+import { Payload } from './jwt.payload';
 
 @Injectable()
 export class UsersService {
@@ -98,28 +99,52 @@ export class UsersService {
           '입력한 비밀번호가 올바르지 않습니다. 입력한 비밀번호를 확인하고 다시 시도하세요.',
       });
 
-    // 4. 일치하는 유저 O, 비밀번호 O
-    // 토큰 발행
-    const jwt = this.jwtService.sign({ id: user.id });
+    const payload = { id: user.id, email: user.email };
 
-    // 쿠키에 저장
-    response.cookie('jwt', jwt, { httpOnly: true });
+    // 4. 토큰 발급
+    const { accessToken, refreshToken } = await this.createToken(payload);
 
-    const loginData = {
+    // 5. 쿠키에 토큰 저장
+    response.cookie('accessToken', accessToken, { httpOnly: true });
+    response.cookie('refreshToken', refreshToken, { httpOnly: true });
+
+    // 6. 결과 반환
+    const result = {
+      result: {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      },
+      message: '로그인 성공',
       statusCode: 201,
-      token: jwt,
     };
 
-    return loginData;
+    return result;
+  }
+
+  // 토큰 발급
+  async createToken({ id, email }: Payload) {
+    const payload: Payload = { id, email };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: process.env.JWT_EXPIRATION_TIME,
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: process.env.REFRESH_JWT_EXPIRATION_TIME,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   // 유저 정보 가져오기
   async getUser(request: any): Promise<any> {
     try {
-      const token = request.body.token;
+      const accessToken = request.body.accessToken;
 
       // 1. jwt 토큰 정보 가져오기
-      const data = await this.jwtService.verifyAsync(token);
+      const data = await this.jwtService.verifyAsync(accessToken);
 
       if (!data) {
         throw new UnauthorizedException();
@@ -142,7 +167,11 @@ export class UsersService {
   // 로그아웃
   logout(response: any): Promise<any> {
     // 1. 쿠키 삭제
-    response.cookie('jwt', '', {
+    response.cookie('accessToken', '', {
+      maxAge: 0,
+    });
+
+    response.cookie('refreshToken', '', {
       maxAge: 0,
     });
 
