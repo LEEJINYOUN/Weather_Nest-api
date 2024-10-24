@@ -47,7 +47,7 @@ export class UsersService {
 
   // 회원가입
   async register(createUserDto: CreateUserDto): Promise<any> {
-    const { email, name, password } = createUserDto;
+    const { email, name, role, password } = createUserDto;
 
     // 1. 이메일 체크
     const isEmail = await this.checkEmail(email);
@@ -67,6 +67,7 @@ export class UsersService {
     const saveUser = await this.usersRepository.save({
       email,
       name,
+      role,
       password: hashedPassword,
     });
 

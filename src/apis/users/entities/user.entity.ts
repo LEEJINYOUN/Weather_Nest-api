@@ -13,6 +13,9 @@ export class User {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
+  @Column()
+  role: string;
+
   @Column({ unique: true })
   email: string;
 
