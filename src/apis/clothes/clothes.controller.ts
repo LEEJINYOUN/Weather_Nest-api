@@ -4,8 +4,8 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
-  Put,
 } from '@nestjs/common';
 import { ClothesService } from './clothes.service';
 import { Clothes } from './entities/clothes.entity';
@@ -42,7 +42,7 @@ export class ClothesController {
   }
 
   // 특정 옷 수정
-  @Put(':id')
+  @Patch(':id')
   async updateClothes(
     @Param('id') id: number,
     @Body() createClothesDto: CreateClothesDto,

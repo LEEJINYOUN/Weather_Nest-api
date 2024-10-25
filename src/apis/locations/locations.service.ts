@@ -2,7 +2,6 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Location } from './entities/location.entity';
-import { ILocationsServiceFindOneByKr } from './interfaces/location-service.interface';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { CountriesService } from '../countries/countries.service';
 
@@ -14,12 +13,12 @@ export class LocationsService {
     private readonly countriesService: CountriesService,
   ) {}
 
-  // // 모든 지역 조회
-  // async getAllLocation(): Promise<Location[]> {
-  //   return this.locationsRepository.find({
-  //     order: { locationName: 'ASC' },
-  //   });
-  // }
+  // 모든 지역 조회
+  async getAllLocation(): Promise<Location[]> {
+    return this.locationsRepository.find({
+      order: { locationName: 'ASC' },
+    });
+  }
 
   // 나라별 지역 조회
   async getAllLocationByCountry(countryId: number): Promise<Location[]> {
@@ -33,18 +32,6 @@ export class LocationsService {
 
     return location;
   }
-
-  // //  지역 체크
-  // async getLocationFindOneByKr({
-  //   locationList,
-  //   locationName,
-  // }: ILocationsServiceFindOneByKr): Promise<Location[]> {
-  //   return locationList.filter((item: any, key: number) => {
-  //     if (item.locationName == locationName) {
-  //       return item;
-  //     }
-  //   });
-  // }
 
   // 지역 등록
   async createLocation(
@@ -70,24 +57,12 @@ export class LocationsService {
     });
   }
 
-  // // id로 지역 찾기
-  // findLocationById(id: number) {
-  //   return this.locationsRepository.findOne({
-  //     where: { id },
-  //   });
-  // }
-
-  // // 특정 지역 수정
-  // async updateLocation(
-  //   id: number,
-  //   createLocationDto: CreateLocationDto,
-  // ): Promise<Location> {
-  //   const location = await this.findLocationById(id);
-
-  //   Object.assign(location, createLocationDto);
-
-  //   return await this.locationsRepository.save(location);
-  // }
+  // id로 지역 찾기
+  findLocationById(id: number) {
+    return this.locationsRepository.findOne({
+      where: { id },
+    });
+  }
 
   // 특정 지역 삭제
   async deleteLocation(id: number): Promise<boolean> {
