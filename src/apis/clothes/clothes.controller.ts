@@ -17,8 +17,8 @@ export class ClothesController {
 
   // 모든 옷 조회
   @Get('all')
-  async getClothes(): Promise<Clothes[]> {
-    return await this.clothesService.getClothes();
+  getClothes(): Promise<Clothes[]> {
+    return this.clothesService.getClothes();
   }
 
   // 옷 등록
@@ -26,13 +26,7 @@ export class ClothesController {
   async createClothes(
     @Body() createClothesDto: CreateClothesDto,
   ): Promise<Clothes> {
-    return await this.clothesService.createClothes({
-      category: createClothesDto.category,
-      name: createClothesDto.name,
-      startTemp: createClothesDto.startTemp,
-      endTemp: createClothesDto.endTemp,
-      image: createClothesDto.image,
-    });
+    return await this.clothesService.createClothes(createClothesDto);
   }
 
   // 기온 별 옷 조회

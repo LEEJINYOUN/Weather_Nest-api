@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { CountriesService } from './countries.service';
 import { Country } from './entities/country.entity';
-import { CreateCountryDto } from './dto/create-country.dto';
 
 @Controller('country')
 export class CountriesController {
@@ -23,25 +22,23 @@ export class CountriesController {
 
   // 특정 나라 조회
   @Get(':id')
-  getCountryById(@Param('id') id: number): Promise<any> {
+  getCountryById(@Param('id') id: number): Promise<Country> {
     return this.countriesService.getCountryById(id);
   }
 
   // 나라 등록
   @Post('create')
-  async createCountry(
-    @Body() createCountryDto: CreateCountryDto,
-  ): Promise<Country> {
-    return await this.countriesService.createCountry(createCountryDto);
+  async createCountry(@Body() name: string): Promise<Country> {
+    return await this.countriesService.createCountry(name);
   }
 
   // 특정 나라 수정
   @Patch(':id')
   async updateCountry(
     @Param('id') id: number,
-    @Body() createCountryDto: CreateCountryDto,
+    @Body() name: string,
   ): Promise<Country> {
-    return await this.countriesService.updateCountry(id, createCountryDto);
+    return await this.countriesService.updateCountry(id, name);
   }
 
   // 특정 나라 삭제

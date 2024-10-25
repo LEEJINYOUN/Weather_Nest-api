@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto, LoginUserDto } from './dto/create-user.dto';
-import { Payload } from './jwt.payload';
+import { Payload } from './interfaces/jwt.payload';
 
 @Injectable()
 export class UsersService {
@@ -35,6 +35,7 @@ export class UsersService {
 
     const user = await query.getOne();
 
+    // 3. 찾은 정보에서 비밀번호 제외
     delete user.password;
 
     return user;
@@ -71,13 +72,34 @@ export class UsersService {
       password: hashedPassword,
     });
 
+    // 5. 저장한 정보에서 비밀번호 제외
     delete saveUser.password;
 
     return saveUser;
   }
 
+  // 토큰 발급
+  async createToken({ id, email }: Payload) {
+    const payload: Payload = { id, email };
+
+    // 1. 접근 토큰 생성
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: process.env.JWT_EXPIRATION_TIME,
+    });
+
+    // 2. 재발급 토큰 생성
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: process.env.REFRESH_JWT_EXPIRATION_TIME,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
   // 로그인
-  async login(loginUserInput: LoginUserDto, response: any): Promise<any> {
+  async login(loginUserInput: LoginUserDto, response: any): Promise<object> {
     const { email, password } = loginUserInput;
 
     // 1. 이메일 체크
@@ -100,16 +122,16 @@ export class UsersService {
           '입력한 비밀번호가 올바르지 않습니다. 입력한 비밀번호를 확인하고 다시 시도하세요.',
       });
 
+    // 4. 페이로드 설정
     const payload = { id: user.id, email: user.email };
 
-    // 4. 토큰 발급
+    // 5. 토큰 발급
     const { accessToken, refreshToken } = await this.createToken(payload);
 
-    // 5. 쿠키에 토큰 저장
+    // 6. 쿠키에 토큰 저장
     response.cookie('accessToken', accessToken, { httpOnly: true });
     response.cookie('refreshToken', refreshToken, { httpOnly: true });
 
-    // 6. 결과 반환
     const result = {
       result: {
         accessToken: accessToken,
@@ -122,41 +144,25 @@ export class UsersService {
     return result;
   }
 
-  // 토큰 발급
-  async createToken({ id, email }: Payload) {
-    const payload: Payload = { id, email };
-
-    const accessToken = this.jwtService.sign(payload, {
-      expiresIn: process.env.JWT_EXPIRATION_TIME,
-    });
-    const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: process.env.REFRESH_JWT_EXPIRATION_TIME,
-    });
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-
   // 유저 정보 가져오기
-  async getUser(request: any): Promise<any> {
+  async getUser(request: any): Promise<object> {
     try {
       const accessToken = request.body.accessToken;
 
-      // 1. jwt 토큰 정보 가져오기
+      // 1. 토큰 정보 가져오기
       const data = await this.jwtService.verifyAsync(accessToken);
 
+      // 2. 정보가 없는 경우
       if (!data) {
         throw new UnauthorizedException();
       }
 
-      // 2. 유저 정보 찾기
+      // 3. 유저 정보 조회
       const user = await this.usersRepository.findOne({
         where: { id: data.id },
       });
 
-      // 3. 비밀번호를 제외한 정보 가져오기
+      // 4. 비밀번호를 제외한 정보 가져오기
       const { password, ...result } = user;
 
       return result;

@@ -14,7 +14,14 @@ import { JwtStrategy } from './jwt.strategy';
     ]),
   ],
   controllers: [UsersController],
-  providers: [UsersService, JwtStrategy],
-  exports: [JwtStrategy, PassportModule, UsersService],
+  providers: [
+    UsersService, //
+    JwtStrategy, //
+  ],
+  exports: [
+    JwtStrategy, //
+    PassportModule, //
+    UsersService, //
+  ],
 })
 export class UsersModule {}

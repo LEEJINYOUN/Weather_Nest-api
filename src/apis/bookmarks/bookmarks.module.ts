@@ -11,11 +11,14 @@ import { UsersService } from '../users/users.service';
   imports: [
     TypeOrmModule.forFeature([
       Bookmark, //
-      User,
+      User, //
     ]),
     UsersModule,
   ],
   controllers: [BookmarksController],
-  providers: [BookmarksService, UsersService],
+  providers: [
+    BookmarksService, //
+    UsersService, //
+  ],
 })
 export class BookmarksModule {}

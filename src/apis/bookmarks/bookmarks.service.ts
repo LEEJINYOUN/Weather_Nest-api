@@ -14,14 +14,14 @@ export class BookmarksService {
   ) {}
 
   // 유저별 모든 즐겨찾기 조회
-  async getAllBookmark(userId: number): Promise<Bookmark[]> {
+  getAllBookmark(userId: number): Promise<Bookmark[]> {
     // 1. 쿼리 설정
     const query = this.bookmarksRepository.createQueryBuilder('bookmark');
 
     // 2. 쿼리로 조회
     query.where('bookmark.userId =:userId', { userId });
 
-    const bookmarks = await query.getMany();
+    const bookmarks = query.getMany();
 
     return bookmarks;
   }
@@ -47,13 +47,13 @@ export class BookmarksService {
     });
 
     if (bookmarkFilter.length == 1) {
-      // 4. 즐겨찾기 삭제
+      // 4.1 즐겨찾기 되어 있는 경우
       const result = await this.bookmarksRepository.delete({
         id: bookmarkFilter[0].id,
       });
       return result.affected ? true : false;
     } else {
-      // 5. 즐겨찾기 추가
+      // 4.2 즐겨찾기 되어 있지 않은 경우
       return this.bookmarksRepository.save({
         locationKr,
         locationEn,

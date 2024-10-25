@@ -19,6 +19,6 @@ export class BookmarksController {
     @Param('userId') userId: number,
     @Body() createBookmarkDto: CreateBookmarkDto,
   ): Promise<any> {
-    return this.bookmarksService.editBookmark(userId, createBookmarkDto);
+    return await this.bookmarksService.editBookmark(userId, createBookmarkDto);
   }
 }

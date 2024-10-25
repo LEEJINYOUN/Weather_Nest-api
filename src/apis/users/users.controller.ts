@@ -26,14 +26,14 @@ export class UsersController {
 
   // 특정 유저 조회
   @Get(':id')
-  getUserById(@Param('id') id: number): Promise<User> {
+  async getUserById(@Param('id') id: number): Promise<User> {
     return this.usersService.getUserById(id);
   }
 
   // 회원가입
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.register(createUserDto);
+    return await this.usersService.register(createUserDto);
   }
 
   // 로그인
@@ -41,15 +41,15 @@ export class UsersController {
   async login(
     @Body() loginUserInput: LoginUserDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<any> {
-    return this.usersService.login(loginUserInput, response);
+  ): Promise<object> {
+    return await this.usersService.login(loginUserInput, response);
   }
 
   // 유저 정보 가져오기
   @Post('getUser')
   @UseGuards(JwtAuthGuard)
-  async getUser(@Req() request: Request): Promise<any> {
-    return this.usersService.getUser(request);
+  async getUser(@Req() request: Request): Promise<object> {
+    return await this.usersService.getUser(request);
   }
 
   // 로그아웃

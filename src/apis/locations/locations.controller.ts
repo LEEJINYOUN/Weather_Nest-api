@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { Location } from './entities/location.entity';
-import { CreateLocationDto } from './dto/create-location.dto';
 
 @Controller('location')
 export class LocationsController {
@@ -25,12 +24,9 @@ export class LocationsController {
   @Post('create/:countryId')
   async createLocation(
     @Param('countryId') countryId: number,
-    @Body() createLocationDto: CreateLocationDto,
+    @Body() locationName: string,
   ): Promise<Location> {
-    return await this.locationsService.createLocation(
-      countryId,
-      createLocationDto,
-    );
+    return await this.locationsService.createLocation(countryId, locationName);
   }
 
   // 특정 지역 삭제
