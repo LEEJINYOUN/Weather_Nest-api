@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -10,12 +9,8 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import {
-  IUserServiceGetAccessToken,
-  IUserServiceLogin,
-  IUsersServiceCreateUser,
-  IUsersServiceFindOneByEmail,
-} from './interfaces/users-service.interface';
+import { CreateUserDto, LoginUserDto } from './dto/create-user.dto';
+import { Payload } from './interfaces/jwt.payload';
 
 @Injectable()
 export class UsersService {
@@ -32,24 +27,31 @@ export class UsersService {
 
   // 특정 유저 조회
   async getUserById(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) throw new NotFoundException(`${id}번 유저는 존재하지 않습니다.`);
+    // 1. 쿼리 설정
+    const query = this.usersRepository.createQueryBuilder('user');
+
+    // 2. 쿼리로 조회
+    query.where('user.id =:id', { id });
+
+    const user = await query.getOne();
+
+    // 3. 찾은 정보에서 비밀번호 제외
+    delete user.password;
+
     return user;
   }
 
   // 이메일 체크
-  checkEmail({ email }: IUsersServiceFindOneByEmail) {
+  checkEmail(email: string) {
     return this.usersRepository.findOne({ where: { email } });
   }
 
   // 회원가입
-  async register({
-    email,
-    name,
-    password,
-  }: IUsersServiceCreateUser): Promise<any> {
+  async register(createUserDto: CreateUserDto): Promise<any> {
+    const { email, name, role, password } = createUserDto;
+
     // 1. 이메일 체크
-    const isEmail = await this.checkEmail({ email });
+    const isEmail = await this.checkEmail(email);
 
     // 2. 일치하는 이메일이 있는 경우
     if (isEmail)
@@ -59,27 +61,49 @@ export class UsersService {
           '이미 등록된 이메일입니다. 입력한 이메일을 확인하고 다시 시도하세요.',
       });
 
-    // 3. 회원가입 하기
+    // 3. 비밀번호 암호화
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 4. 회원가입
     const saveUser = await this.usersRepository.save({
       email,
       name,
-      password,
+      role,
+      password: hashedPassword,
     });
 
+    // 5. 저장한 정보에서 비밀번호 제외
     delete saveUser.password;
 
     return saveUser;
   }
 
-  // 토큰 발행
-  getAccessToken({ user }: IUserServiceGetAccessToken): string {
-    return this.jwtService.sign({ id: user.id });
+  // 토큰 발급
+  async createToken({ id, email }: Payload) {
+    const payload: Payload = { id, email };
+
+    // 1. 접근 토큰 생성
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: process.env.JWT_EXPIRATION_TIME,
+    });
+
+    // 2. 재발급 토큰 생성
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: process.env.REFRESH_JWT_EXPIRATION_TIME,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   // 로그인
-  async login({ email, password, response }: IUserServiceLogin): Promise<any> {
+  async login(loginUserInput: LoginUserDto, response: any): Promise<object> {
+    const { email, password } = loginUserInput;
+
     // 1. 이메일 체크
-    const user = await this.checkEmail({ email });
+    const user = await this.checkEmail(email);
 
     // 2. 일치하는 유저 X
     if (!user)
@@ -90,44 +114,55 @@ export class UsersService {
       });
 
     // 3. 일치하는 유저 O, 비밀번호 X
-    const isAuth = await bcrypt.compare(password, user.password);
-    if (!isAuth)
+    const isPasswordMatches = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatches)
       throw new UnprocessableEntityException({
         objectOrError: '비밀번호 오류',
         descriptionOrOptions:
           '입력한 비밀번호가 올바르지 않습니다. 입력한 비밀번호를 확인하고 다시 시도하세요.',
       });
 
-    // 4. 일치하는 유저 O, 비밀번호 O
-    const jwt = this.getAccessToken({ user });
-    response.cookie('jwt', jwt, { httpOnly: true });
+    // 4. 페이로드 설정
+    const payload = { id: user.id, email: user.email };
 
-    const loginData = {
+    // 5. 토큰 발급
+    const { accessToken, refreshToken } = await this.createToken(payload);
+
+    // 6. 쿠키에 토큰 저장
+    response.cookie('accessToken', accessToken, { httpOnly: true });
+    response.cookie('refreshToken', refreshToken, { httpOnly: true });
+
+    const result = {
+      result: {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      },
+      message: '로그인 성공',
       statusCode: 201,
-      token: jwt,
     };
 
-    return loginData;
+    return result;
   }
 
   // 유저 정보 가져오기
-  async getUser(request: any): Promise<any> {
+  async getUser(request: any): Promise<object> {
     try {
-      const token = request.body.token;
+      const accessToken = request.body.accessToken;
 
-      // 1. jwt 토큰 정보 가져오기
-      const data = await this.jwtService.verifyAsync(token);
+      // 1. 토큰 정보 가져오기
+      const data = await this.jwtService.verifyAsync(accessToken);
 
+      // 2. 정보가 없는 경우
       if (!data) {
         throw new UnauthorizedException();
       }
 
-      // 2. 유저 정보 찾기
+      // 3. 유저 정보 조회
       const user = await this.usersRepository.findOne({
         where: { id: data.id },
       });
 
-      // 3. 비밀번호를 제외한 정보 가져오기
+      // 4. 비밀번호를 제외한 정보 가져오기
       const { password, ...result } = user;
 
       return result;
@@ -137,14 +172,19 @@ export class UsersService {
   }
 
   // 로그아웃
-  logout() {
-    const result = {
+  logout(response: any): Promise<any> {
+    // 1. 쿠키 삭제
+    response.cookie('accessToken', '', {
+      maxAge: 0,
+    });
+
+    response.cookie('refreshToken', '', {
+      maxAge: 0,
+    });
+
+    return response.send({
       message: '로그아웃 성공',
       statusCode: 201,
-      token: '',
-      httpOnly: true,
-      maxAge: 0,
-    };
-    return result;
+    });
   }
 }

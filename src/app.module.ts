@@ -7,8 +7,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { ClothesModule } from './apis/clothes/clothes.module';
 import { LocationsModule } from './apis/locations/locations.module';
 import { CountriesModule } from './apis/countries/countries.module';
-import { TestBoardsModule } from './apis/test-boards/test-boards.module';
-import { TestAuthModule } from './apis/test-auth/test-auth.module';
 
 @Module({
   imports: [
@@ -33,19 +31,10 @@ import { TestAuthModule } from './apis/test-auth/test-auth.module';
       imports: [],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: {
-          expiresIn: process.env.JWT_EXPIRATION_TIME,
-        },
       }),
       global: true,
       inject: [],
     }), // jwt 설정
-
-    // 테스트 start
-    TestBoardsModule, //
-    TestAuthModule, //
-
-    // 테스트 end
   ],
 })
 export class AppModule {}

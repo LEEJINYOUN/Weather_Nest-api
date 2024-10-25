@@ -2,86 +2,56 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Location } from './entities/location.entity';
-import {
-  ILocationsServiceFindOneByCountry,
-  ILocationsServiceFindOneByKr,
-} from './interfaces/location-service.interface';
-import { CreateLocationDto } from './dto/create-location.dto';
+import { CountriesService } from '../countries/countries.service';
 
 @Injectable()
 export class LocationsService {
   constructor(
     @InjectRepository(Location)
     private readonly locationsRepository: Repository<Location>,
+    private readonly countriesService: CountriesService,
   ) {}
 
   // 모든 지역 조회
-  async getAllLocation(): Promise<Location[]> {
+  getAllLocation(): Promise<Location[]> {
     return this.locationsRepository.find({
       order: { locationName: 'ASC' },
     });
   }
 
   // 나라별 지역 조회
-  async getAllLocationByCountry({
-    countryId,
-  }: ILocationsServiceFindOneByCountry): Promise<Location[]> {
-    // 1. 지역 목록 조회
-    const locationList = await this.locationsRepository.find({
-      where: { countryId },
-      order: { locationName: 'ASC' },
-    });
+  getAllLocationByCountry(countryId: number): Promise<Location[]> {
+    // 1. 쿼리 설정
+    const query = this.locationsRepository.createQueryBuilder('location');
 
-    return locationList;
-  }
+    // 2. 쿼리로 조회
+    query.where('location.countriesId =:countryId', { countryId });
 
-  //  지역 체크
-  async getLocationFindOneByKr({
-    locationList,
-    locationName,
-  }: ILocationsServiceFindOneByKr): Promise<Location[]> {
-    return locationList.filter((item: any, key: number) => {
-      if (item.locationName == locationName) {
-        return item;
-      }
-    });
+    const location = query.getMany();
+
+    return location;
   }
 
   // 지역 등록
   async createLocation(
-    createLocationDto: CreateLocationDto,
+    countryId: number,
+    locationName: string,
   ): Promise<Location> {
+    // 1. 나라 정보 조회
+    const countryById = await this.countriesService.getCountryById(countryId);
+
+    // 2. 지역 체크
     const isLocation = await this.locationsRepository.findOne({
-      where: { locationName: createLocationDto.locationName },
+      where: { locationName },
     });
 
-    // 1. 일치하는 지역이 있는 경우
+    // 3. 일치하는 지역이 있는 경우
     if (isLocation) throw new ConflictException('이미 등록된 지역입니다.');
 
-    // 2. 지역 등록 성공
-    return await this.locationsRepository.save({
-      countryId: createLocationDto.countryId,
-      locationName: createLocationDto.locationName,
+    return this.locationsRepository.save({
+      locationName,
+      countries: countryById,
     });
-  }
-
-  // id로 지역 찾기
-  findLocationById(id: number) {
-    return this.locationsRepository.findOne({
-      where: { id },
-    });
-  }
-
-  // 특정 지역 수정
-  async updateLocation(
-    id: number,
-    createLocationDto: CreateLocationDto,
-  ): Promise<Location> {
-    const location = await this.findLocationById(id);
-
-    Object.assign(location, createLocationDto);
-
-    return await this.locationsRepository.save(location);
   }
 
   // 특정 지역 삭제

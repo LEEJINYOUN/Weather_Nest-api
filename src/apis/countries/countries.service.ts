@@ -1,13 +1,7 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  Post,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Country } from './entities/country.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateCountryDto } from './dto/create-country.dto';
 
 @Injectable()
 export class CountriesService {
@@ -22,46 +16,44 @@ export class CountriesService {
   }
 
   // 특정 나라 조회
-  async getCountryByName(name: string): Promise<Country> {
-    const isCountry = await this.countriesRepository.findOne({
-      where: { name },
-    });
-    if (!isCountry) throw new NotFoundException(`${name}은 존재하지 않습니다.`);
-    return isCountry;
+  getCountryById(id: number): Promise<Country> {
+    // 1. 쿼리 설정
+    const query = this.countriesRepository.createQueryBuilder('country');
+
+    // 2. 쿼리로 조회
+    query.where('country.id =:id', { id });
+
+    const country = query.getOne();
+
+    return country;
   }
 
   // 나라 등록
-  async createCountry(createCountryDto: CreateCountryDto): Promise<Country> {
+  async createCountry(name: string): Promise<Country> {
+    // 1. 나라 조회
     const isCountry = await this.countriesRepository.findOne({
-      where: { name: createCountryDto.name },
+      where: { name },
     });
 
-    // 1. 일치하는 나라가 있는 경우
+    // 2. 일치하는 나라가 있는 경우
     if (isCountry) throw new ConflictException('이미 등록된 나라입니다.');
 
-    // 2. 나라 등록 성공
+    // 3. 나라 등록 성공
     return await this.countriesRepository.save({
-      name: createCountryDto.name,
+      name,
     });
   }
 
-  // id로 나라 찾기
-  findCountryById(id: number) {
-    return this.countriesRepository.findOne({
+  // 특정 나라 수정
+  async updateCountry(id: number, name: string): Promise<Country> {
+    // 1. id로 특정 나라 조회
+    const findCountryById = await this.countriesRepository.findOne({
       where: { id },
     });
-  }
 
-  //특정 나라 수정
-  async updateCountry(
-    id: number,
-    createCountryDto: CreateCountryDto,
-  ): Promise<Country> {
-    const clothes = await this.findCountryById(id);
+    Object.assign(findCountryById, { name });
 
-    Object.assign(clothes, createCountryDto);
-
-    return await this.countriesRepository.save(clothes);
+    return await this.countriesRepository.save(findCountryById);
   }
 
   // 특정 나라 삭제

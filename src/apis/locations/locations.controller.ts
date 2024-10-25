@@ -1,16 +1,6 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { Location } from './entities/location.entity';
-import { CreateLocationDto } from './dto/create-location.dto';
 
 @Controller('location')
 export class LocationsController {
@@ -27,26 +17,16 @@ export class LocationsController {
   getAllLocationByCountry(
     @Param('countryId') countryId: number,
   ): Promise<Location[]> {
-    return this.locationsService.getAllLocationByCountry({
-      countryId,
-    });
+    return this.locationsService.getAllLocationByCountry(countryId);
   }
 
   // 지역 등록
-  @Post('create')
+  @Post('create/:countryId')
   async createLocation(
-    @Body() createLocationDto: CreateLocationDto,
+    @Param('countryId') countryId: number,
+    @Body() locationName: string,
   ): Promise<Location> {
-    return await this.locationsService.createLocation(createLocationDto);
-  }
-
-  // 특정 지역 수정
-  @Put(':id')
-  async updateLocation(
-    @Param('id') id: number,
-    @Body() createLocationDto: CreateLocationDto,
-  ): Promise<Location> {
-    return await this.locationsService.updateLocation(id, createLocationDto);
+    return await this.locationsService.createLocation(countryId, locationName);
   }
 
   // 특정 지역 삭제

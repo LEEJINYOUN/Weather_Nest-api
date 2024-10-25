@@ -2,11 +2,6 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Clothes } from './entities/clothes.entity';
 import { LessThanOrEqual, Repository } from 'typeorm';
-import {
-  IClothesServiceCreate,
-  IClothesServiceFindEndTemp,
-  IClothesServiceFindOneByImage,
-} from './interfaces/clothes-service.interface';
 import { CreateClothesDto } from './dto/create-clothes.dto';
 
 @Injectable()
@@ -16,47 +11,19 @@ export class ClothesService {
     private readonly clothesRepository: Repository<Clothes>,
   ) {}
 
-  // 옷 이미지 이름 체크
-  findClothesImage({ image }: IClothesServiceFindOneByImage) {
-    return this.clothesRepository.findOne({ where: { image } });
-  }
-
-  // 최저 기온 필터
-  findClothesByStartTemp(temp: number) {
-    return this.clothesRepository.find({
-      where: { startTemp: LessThanOrEqual(temp) },
-    });
-  }
-
-  // 최고 기온 필터
-  findClothesByEndTemp({ temp, startClothes }: IClothesServiceFindEndTemp) {
-    return startClothes.filter((item) => {
-      return temp <= item.endTemp;
-    });
-  }
-
-  // id로 옷 찾기
-  findClothesId(id: number) {
-    return this.clothesRepository.findOne({
-      where: { id },
-    });
-  }
-
   // 모든 옷 조회
-  async getClothes(): Promise<Clothes[]> {
-    return await this.clothesRepository.find();
+  getClothes(): Promise<Clothes[]> {
+    return this.clothesRepository.find();
   }
 
   // 옷 등록
-  async createClothes({
-    category,
-    name,
-    startTemp,
-    endTemp,
-    image,
-  }: IClothesServiceCreate): Promise<Clothes> {
+  async createClothes(createClothesDto: CreateClothesDto): Promise<Clothes> {
+    const { category, name, startTemp, endTemp, image } = createClothesDto;
+
     // 1. 등록된 옷 체크
-    const isClothes = await this.findClothesImage({ image });
+    const isClothes = await this.clothesRepository.findOne({
+      where: { image },
+    });
 
     // 2. 일치하는 옷이 있는 경우
     if (isClothes) throw new ConflictException('이미 등록된 옷입니다.');
@@ -74,10 +41,14 @@ export class ClothesService {
   // 기온 별 옷 조회
   async getClothesByTemp(temp: number): Promise<Clothes[] | number> {
     // 1. 최저 기온 필터
-    const startClothes = await this.findClothesByStartTemp(temp);
+    const startClothes = await this.clothesRepository.find({
+      where: { startTemp: LessThanOrEqual(temp) },
+    });
 
     // 2. 최고 기온 필터
-    const endClothes = this.findClothesByEndTemp({ temp, startClothes });
+    const endClothes = startClothes.filter((item) => {
+      return temp <= item.endTemp;
+    });
 
     if (endClothes.length >= 1) {
       return endClothes;
@@ -91,7 +62,10 @@ export class ClothesService {
     id: number,
     createClothesDto: CreateClothesDto,
   ): Promise<Clothes> {
-    const clothes = await this.findClothesId(id);
+    // 1. id로 옷 조회
+    const clothes = await this.clothesRepository.findOne({
+      where: { id },
+    });
 
     Object.assign(clothes, createClothesDto);
 

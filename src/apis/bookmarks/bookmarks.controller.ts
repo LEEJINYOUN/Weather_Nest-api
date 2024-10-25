@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { BookmarksService } from './bookmarks.service';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { Bookmark } from './entities/bookmark.entity';
@@ -13,27 +13,12 @@ export class BookmarksController {
     return this.bookmarksService.getAllBookmark(userId);
   }
 
-  // 유저별 즐겨찾기 지역 조회
-  @Get(':userId')
-  getBookmarkByKr(
-    @Param('userId') userId: number,
-    @Query('locationKr') locationKr: string,
-  ): Promise<any> {
-    return this.bookmarksService.getBookmarkByKr({
-      userId,
-      locationKr,
-    });
-  }
-
-  // 즐겨찾기 추가 및 삭제
-  @Post('update/:userId')
-  async updateBookmark(
+  // 즐겨찾기 수정
+  @Post('edit/:userId')
+  async editBookmark(
     @Param('userId') userId: number,
     @Body() createBookmarkDto: CreateBookmarkDto,
-  ): Promise<string> {
-    return this.bookmarksService.updateBookmark({
-      userId,
-      createBookmarkDto,
-    });
+  ): Promise<any> {
+    return await this.bookmarksService.editBookmark(userId, createBookmarkDto);
   }
 }

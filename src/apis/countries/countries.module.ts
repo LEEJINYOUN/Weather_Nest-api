@@ -12,5 +12,6 @@ import { CountriesService } from './countries.service';
   ],
   controllers: [CountriesController],
   providers: [CountriesService],
+  exports: [CountriesService],
 })
 export class CountriesModule {}
