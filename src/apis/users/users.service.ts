@@ -21,8 +21,14 @@ export class UsersService {
   ) {}
 
   // 모든 유저 조회
-  getAllUser(): Promise<User[]> {
-    return this.usersRepository.find();
+  async getAllUser(): Promise<User[]> {
+    // 1. 정보 조회
+    const users = await this.usersRepository.find();
+
+    // 2. 찾은 정보에서 비밀번호 제외
+    users.filter((item) => delete item.password);
+
+    return users;
   }
 
   // 특정 유저 조회
